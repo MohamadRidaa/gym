@@ -10,7 +10,6 @@
 :root {
     --primary: #6c5ce7;
     --primary-dark: #5a4bd1;
-    --primary-light: #a29bfe;
     --success: #00b894;
     --danger: #ff6b6b;
     --warning: #fdcb6e;
@@ -38,7 +37,6 @@ body {
     padding: 24px;
 }
 
-/* ---------- LAYOUT ---------- */
 .app-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -83,17 +81,8 @@ body {
     flex-wrap: wrap;
 }
 
-.stat-badge {  display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--gray-700);
-    background: var(--gray-100);
-    padding: 6px 16px;
-    border-radius: 20px;
-    cursor: pointer;                 /* 👈 new */
-    transition: background 0.2s;
+/* --- clickable stat badges (added) --- */
+.stat-badge {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -103,9 +92,13 @@ body {
     background: var(--gray-100);
     padding: 6px 16px;
     border-radius: 20px;
-}   
+    cursor: pointer;             /* added */
+    transition: background 0.2s; /* added */
+    user-select: none;
+}
+
 .stat-badge:hover {
-    background: var(--gray-200);    /* 👈 new */
+    background: var(--gray-200); /* added */
 }
 
 .stat-badge .num {
@@ -189,6 +182,7 @@ body {
     color: var(--gray-400);
 }
 
+/* ---------- BUTTONS ---------- */
 .btn {
     padding: 10px 24px;
     border: none;
@@ -217,6 +211,15 @@ body {
 .btn-primary:hover {
     background: var(--primary-dark);
     box-shadow: 0 4px 16px rgba(108, 92, 231, 0.35);
+}
+
+/* --- added renew button style (success) --- */
+.btn-success {
+    background: var(--success);
+    color: #fff;
+}
+.btn-success:hover {
+    background: #00a382;
 }
 
 .btn-danger {

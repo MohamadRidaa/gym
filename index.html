@@ -12,21 +12,13 @@
 
         <!-- HEADER -->
         <header class="app-header">
-            <h1>
-                🏋️ Gym Manager
-                <span>v1.0</span>
-            </h1>
+            <h1>🏋️ Gym Manager <span>v1.0</span></h1>
             <div class="header-stats">
-    <div class="stat-badge active" id="activeBadge">     <!-- 👈 added id -->
-        ✅ Active <span class="num" id="activeCount">0</span>
-    </div>
-    <div class="stat-badge expired" id="expiredBadge">   <!-- 👈 added id -->
-        ⏰ Expired <span class="num" id="expiredCount">0</span>
-    </div>
-    <div class="stat-badge" id="totalBadge">             <!-- 👈 added id -->
-        👥 Total <span class="num" id="totalCount">0</span>
-    </div>
-</div>
+                <!-- added id attributes for clickable badges -->
+                <div class="stat-badge active" id="activeBadge">✅ Active <span class="num" id="activeCount">0</span></div>
+                <div class="stat-badge expired" id="expiredBadge">⏰ Expired <span class="num" id="expiredCount">0</span></div>
+                <div class="stat-badge" id="totalBadge">👥 Total <span class="num" id="totalCount">0</span></div>
+            </div>
         </header>
 
         <!-- ADD MEMBER FORM -->
@@ -67,7 +59,6 @@
         <section class="card">
             <div class="card-title">📋 Members</div>
 
-            <!-- Toolbar -->
             <div class="toolbar">
                 <div class="toolbar-left">
                     <div class="search-box">
@@ -82,21 +73,20 @@
                     </select>
                 </div>
                 <div class="toolbar-right">
-                    <button class="btn btn-outline btn-sm" id="sortBtn">📅 Sort by expiry</button>
+                    <button class="btn btn-outline btn-sm" id="sortBtn">📅 Sort</button>
                 </div>
             </div>
 
-            <!-- Table -->
             <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
                             <th>Name</th>
                             <th>Phone</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
+                            <th>Start</th>
+                            <th>End</th>
                             <th>Status</th>
-                            <th>Days Left</th>
+                            <th>Days</th>
                             <th style="text-align:center;">Actions</th>
                         </tr>
                     </thead>
@@ -113,15 +103,11 @@
             </div>
 
             <div style="margin-top:16px; display:flex; justify-content:flex-end;">
-                <button class="btn btn-outline btn-sm" id="clearAllBtn" style="color:var(--danger); border-color:var(--danger);">
-                    🗑️ Clear All Data
-                </button>
+                <button class="btn btn-outline btn-sm" id="clearAllBtn" style="color:var(--danger); border-color:var(--danger);">🗑️ Clear All</button>
             </div>
         </section>
-
     </div>
 
-    <!-- TOAST CONTAINER -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script src="script.js"></script>

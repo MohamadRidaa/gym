@@ -111,12 +111,10 @@ function render() {
 
     let filtered = [...members];
 
-    // Search
     if (search) {
         filtered = filtered.filter(m => m.name.toLowerCase().includes(search));
     }
 
-    // Filter
     if (filter === 'active') {
         filtered = filtered.filter(m => getStatus(m.endDate) === 'active');
     } else if (filter === 'expired') {
@@ -125,13 +123,11 @@ function render() {
         filtered = filtered.filter(m => getStatus(m.endDate) === 'expiring-soon');
     }
 
-    // Sort by end date (closest first) — default
     filtered.sort((a, b) => a.endDate.localeCompare(b.endDate));
 
     const tbody = document.getElementById('memberTableBody');
     const empty = document.getElementById('emptyState');
 
-    // Update stats
     const total = members.length;
     const active = members.filter(m => getStatus(m.endDate) === 'active').length;
     const expired = members.filter(m => getStatus(m.endDate) === 'expired').length;
@@ -166,42 +162,37 @@ function render() {
         if (days < 0) daysClass = 'negative';
         else if (days <= 7) daysClass = 'warning';
 
+        // ADDED: Renew button (green) next to Delete
         html += `
-                    <tr>
-                        <td><span class="member-name">${escHtml(m.name)}</span></td>
-                        <td class="member-phone">${m.phone ? escHtml(m.phone) : '—'}</td>
-                        <td>${formatDate(m.startDate)}</td>
-                        <td>${formatDate(m.endDate)}</td>
-                        <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
-                        <td><span class="days-remaining ${daysClass}">${formatDays(days)}</span></td>
-                        <td style="text-align:center;">
-                            <div class="action-cell" style="justify-content:center;">
-                                <button class="btn btn-danger btn-sm delete-btn" data-id="${m.id}">🗑️</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+            <tr>
+                <td><span class="member-name">${escHtml(m.name)}</span></td>
+                <td class="member-phone">${m.phone ? escHtml(m.phone) : '—'}</td>
+                <td>${formatDate(m.startDate)}</td>
+                <td>${formatDate(m.endDate)}</td>
+                <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+                <td><span class="days-remaining ${daysClass}">${formatDays(days)}</span></td>
+                <td style="text-align:center;">
+                    <div class="action-cell" style="justify-content:center;">
+                        <!-- RENEW BUTTON (new) -->
+                        <button class="btn btn-success btn-sm renew-btn" data-id="${m.id}">🔄 Renew</button>
+                        <!-- DELETE BUTTON -->
+                        <button class="btn btn-danger btn-sm delete-btn" data-id="${m.id}">🗑️</button>
+                    </div>
+                </td>
+            </tr>
+        `;
     }
 
     tbody.innerHTML = html;
-
-    // Attach delete events
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.dataset.id;
-            deleteMember(id);
-        });
-    });
 }
 
-// Simple escape
 function escHtml(str) {
     if (!str) return '';
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // ============================================================
-//  CRUD
+//  CRUD & RENEW (added renewMember)
 // ============================================================
 function addMember(name, phone, startDate, durationMonths) {
     const endDate = addMonths(startDate, durationMonths);
@@ -226,6 +217,29 @@ function deleteMember(id) {
     saveMembers();
     render();
     if (member) showToast(`🗑️ ${member.name} removed.`, 'info');
+}
+
+// === NEW: Renew membership ===
+function renewMember(id) {
+    const member = members.find(m => m.id === id);
+    if (!member) {
+        showToast('❌ Member not found.', 'error');
+        return;
+    }
+
+    const monthsInput = prompt(`Renew ${member.name}'s membership.\nAdd how many months to the current end date?`, '3');
+    if (monthsInput === null) return; // cancelled
+    const months = parseInt(monthsInput, 10);
+    if (isNaN(months) || months <= 0) {
+        showToast('⚠️ Please enter a valid positive number.', 'error');
+        return;
+    }
+
+    const newEndDate = addMonths(member.endDate, months);
+    member.endDate = newEndDate;
+    saveMembers();
+    render();
+    showToast(`🔄 ${member.name} renewed for ${months} month${months > 1 ? 's' : ''}! New end: ${formatDate(newEndDate)}`, 'success');
 }
 
 function clearAllData() {
@@ -255,66 +269,84 @@ function showToast(message, type = 'info') {
 }
 
 // ============================================================
-//  FORM HANDLING
+//  FORM & EVENT BINDING
 // ============================================================
-document.getElementById('memberForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+document.addEventListener('DOMContentLoaded', function() {
+    // Form submission
+    document.getElementById('memberForm').addEventListener('submit', function(e) {
+        e.preventDefault();
 
-    const name = document.getElementById('memberName').value.trim();
-    const phone = document.getElementById('memberPhone').value.trim();
-    const startDate = document.getElementById('memberStart').value;
-    const duration = parseInt(document.getElementById('memberDuration').value, 10);
+        const name = document.getElementById('memberName').value.trim();
+        const phone = document.getElementById('memberPhone').value.trim();
+        const startDate = document.getElementById('memberStart').value;
+        const duration = parseInt(document.getElementById('memberDuration').value, 10);
 
-    if (!name) {
-        showToast('⚠️ Please enter a name.', 'error');
-        return;
-    }
-    if (!startDate) {
-        showToast('⚠️ Please select a start date.', 'error');
-        return;
-    }
+        if (!name) {
+            showToast('⚠️ Please enter a name.', 'error');
+            return;
+        }
+        if (!startDate) {
+            showToast('⚠️ Please select a start date.', 'error');
+            return;
+        }
 
-    addMember(name, phone, startDate, duration);
-    this.reset();
-    // Set default date again after reset
-    document.getElementById('memberStart').value = todayStr();
-    document.getElementById('memberName').focus();
-});
-
-// ============================================================
-//  SEARCH & FILTER
-// ============================================================
-document.getElementById('searchInput').addEventListener('input', render);
-document.getElementById('filterSelect').addEventListener('change', render);
-
-// ============================================================
-//  SORT BUTTON (toggle ascending/descending by end date)
-// ============================================================
-let sortAsc = true;
-document.getElementById('sortBtn').addEventListener('click', function() {
-    sortAsc = !sortAsc;
-    members.sort((a, b) => {
-        const cmp = a.endDate.localeCompare(b.endDate);
-        return sortAsc ? cmp : -cmp;
+        addMember(name, phone, startDate, duration);
+        this.reset();
+        document.getElementById('memberStart').value = todayStr();
+        document.getElementById('memberName').focus();
     });
-    saveMembers();
+
+    // Search & filter
+    document.getElementById('searchInput').addEventListener('input', render);
+    document.getElementById('filterSelect').addEventListener('change', render);
+
+    // Clickable stat badges (added)
+    document.getElementById('activeBadge').addEventListener('click', function() {
+        document.getElementById('filterSelect').value = 'active';
+        render();
+    });
+    document.getElementById('expiredBadge').addEventListener('click', function() {
+        document.getElementById('filterSelect').value = 'expired';
+        render();
+    });
+    document.getElementById('totalBadge').addEventListener('click', function() {
+        document.getElementById('filterSelect').value = 'all';
+        render();
+    });
+
+    // Sort
+    let sortAsc = true;
+    document.getElementById('sortBtn').addEventListener('click', function() {
+        sortAsc = !sortAsc;
+        members.sort((a, b) => {
+            const cmp = a.endDate.localeCompare(b.endDate);
+            return sortAsc ? cmp : -cmp;
+        });
+        saveMembers();
+        render();
+        showToast(`📅 Sorted ${sortAsc ? 'oldest → newest' : 'newest → oldest'}`, 'info');
+    });
+
+    // Clear all
+    document.getElementById('clearAllBtn').addEventListener('click', clearAllData);
+
+    // === Event delegation for dynamic buttons (delete & renew) ===
+    document.getElementById('memberTableBody').addEventListener('click', function(e) {
+        const target = e.target.closest('button');
+        if (!target) return;
+        const id = target.dataset.id;
+        if (!id) return;
+
+        if (target.classList.contains('delete-btn')) {
+            deleteMember(id);
+        } else if (target.classList.contains('renew-btn')) {
+            renewMember(id);   // <-- renew handler
+        }
+    });
+
+    // Init
+    document.getElementById('memberStart').value = todayStr();
+    loadMembers();
     render();
-    showToast(`📅 Sorted ${sortAsc ? 'oldest → newest' : 'newest → oldest'}`, 'info');
+    setInterval(render, 60000);
 });
-
-// ============================================================
-//  CLEAR ALL
-// ============================================================
-document.getElementById('clearAllBtn').addEventListener('click', clearAllData);
-
-// ============================================================
-//  INIT
-// ============================================================
-// Set default date to today
-document.getElementById('memberStart').value = todayStr();
-
-loadMembers();
-render();
-
-// Auto-refresh every 60 seconds (to update "days left")
-setInterval(render, 60000);
