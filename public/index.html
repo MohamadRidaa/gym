@@ -45,66 +45,46 @@
         <!-- ===== MAIN CONTENT ===== -->
         <main class="main-content">
 
-            <!-- ===== PAGE: DASHBOARD ===== -->
+         <!-- ===== PAGE: DASHBOARD ===== -->
             <section class="page" id="page-dashboard">
-                <header class="app-header">
-                    <h1>📊 Dashboard</h1>
-                    <div class="header-stats">
-                        <div class="stat-badge active" id="activeBadge">✅ Active <span class="num" id="activeCount">0</span></div>
-                        <div class="stat-badge expired" id="expiredBadge">⏰ Expired <span class="num" id="expiredCount">0</span></div>
-                        <div class="stat-badge" id="totalBadge">👥 Total <span class="num" id="totalCount">0</span></div>
-                    </div>
-                </header>
+            <header class="app-header">
+            <h1>📊 Dashboard</h1>
+            <div class="header-stats">
+            <div class="stat-badge active" id="activeBadge">✅ Active <span class="num" id="activeCount">0</span></div>
+            <div class="stat-badge expired" id="expiredBadge">⏰ Expired <span class="num" id="expiredCount">0</span></div>
+            <div class="stat-badge" id="totalBadge">👥 Total <span class="num" id="totalCount">0</span></div>
+        </div>
+    </header>
 
-                <!-- Member List -->
-                <div class="card">
-                    <div class="card-title">📋 Members</div>
-                    <div class="toolbar">
-                        <div class="toolbar-left">
-                            <div class="search-box">
-                                <span class="icon">🔍</span>
-                                <input type="text" id="searchInput" placeholder="Search by name..." />
-                            </div>
-                            <select class="filter-select" id="filterSelect">
-                                <option value="all">All</option>
-                                <option value="active">Active</option>
-                                <option value="expired">Expired</option>
-                                <option value="expiring-soon">Expiring soon (≤ 7 days)</option>
-                            </select>
-                        </div>
-                        <div class="toolbar-right">
-                            <button class="btn btn-outline btn-sm" id="sortBtn">📅 Sort</button>
-                        </div>
-                    </div>
+    <!-- ===== THREE LISTS ===== -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
 
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Phone</th>
-                                    <th>Start</th>
-                                    <th>End</th>
-                                    <th>Status</th>
-                                    <th>Days</th>
-                                    <th style="text-align:center;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="memberTableBody"></tbody>
-                        </table>
-                    </div>
+        <!-- Expired Members -->
+        <div class="card">
+            <div class="card-title">⏰ Expired Members</div>
+            <div id="expiredList" style="max-height: 300px; overflow-y: auto;">
+                <p class="text-muted">No expired members</p>
+            </div>
+        </div>
 
-                    <div id="emptyState" class="empty-state">
-                        <span class="big-icon">🏋️</span>
-                        <h3>No members yet</h3>
-                        <p class="text-muted">Add your first member using the form above!</p>
-                    </div>
+        <!-- Expiring Soon -->
+        <div class="card">
+            <div class="card-title">⚠️ Expiring Soon (≤ 7 days)</div>
+            <div id="expiringSoonList" style="max-height: 300px; overflow-y: auto;">
+                <p class="text-muted">No members expiring soon</p>
+            </div>
+        </div>
 
-                    <div style="margin-top:16px; display:flex; justify-content:flex-end;">
-                        <button class="btn btn-outline btn-sm" id="clearAllBtn" style="color:var(--danger); border-color:var(--danger);">🗑️ Clear All</button>
-                    </div>
-                </div>
-            </section>
+        <!-- New & Renewed Today -->
+        <div class="card">
+            <div class="card-title">🆕 New & Renewed Today</div>
+            <div id="newTodayList" style="max-height: 300px; overflow-y: auto;">
+                <p class="text-muted">No members added or renewed today</p>
+            </div>
+        </div>
+
+    </div>
+</section>  
 
             <!-- ===== PAGE: ADD MEMBER ===== -->
             <section class="page" id="page-add-member" style="display:none;">
@@ -121,8 +101,8 @@
                                 <input type="text" id="memberName" placeholder="e.g. John Doe" required />
                             </div>
                             <div class="form-group">
-                                <label for="memberPhone">Phone (optional)</label>
-                                <input type="text" id="memberPhone" placeholder="e.g. 555-1234" />
+                                <label for="memberPhone">Phone </label>
+                                <input type="text" id="memberPhone" placeholder="e.g. 555-1234" required pattern="[0-9+\-() ]+" title="Please enter a valid phone number"/>
                             </div>
                             <div class="form-group">
                                 <label for="memberStart">Start Date *</label>
@@ -131,8 +111,8 @@
                             <div class="form-group">
                                 <label for="memberDuration">Duration *</label>
                                 <select id="memberDuration">
-                                    <option value="1">1 month</option>
-                                    <option value="3" selected>3 months</option>
+                                    <option value="1" selected>1 month</option>
+                                    <option value="3" >3 months</option>
                                     <option value="6">6 months</option>
                                     <option value="12">12 months</option>
                                 </select>

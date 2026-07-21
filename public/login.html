@@ -13,7 +13,10 @@
 
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            /* Background image with dark overlay for readability */
+            background: 
+                linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                url('background-login.jpg') center/cover no-repeat;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -30,6 +33,21 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
+        /* ===== CIRCULAR LOGO ===== */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .logo-container img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #6c5ce7;
+            box-shadow: 0 4px 20px rgba(108, 92, 231, 0.3);
+        }
+
         .login-container h1 {
             text-align: center;
             font-size: 2rem;
@@ -42,13 +60,6 @@
             color: #636e72;
             margin-bottom: 32px;
             font-size: 0.95rem;
-        }
-
-        .login-container .icon {
-            text-align: center;
-            font-size: 3.5rem;
-            margin-bottom: 16px;
-            display: block;
         }
 
         .form-group {
@@ -124,7 +135,11 @@
 <body>
 
     <div class="login-container">
-        <span class="icon">🏋️</span>
+        <!-- ===== CIRCULAR LOGO ===== -->
+        <div class="logo-container">
+            <img src="logo-login.jpg" alt="Gym Logo" />
+        </div>
+
         <h1>Gym Manager</h1>
         <p class="subtitle">Sign in to continue</p>
 

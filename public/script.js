@@ -88,18 +88,24 @@ async function loadMembers() {
         const res = await fetch(`${API_BASE}/members`);
         if (!res.ok) throw new Error('Failed to load members');
         members = await res.json();
-        render();
+        updateStats();
         renderMembersPage(); 
+        renderDashboardLists();
     } catch (err) {
         showToast('Error loading members: ' + err.message, 'error');
         members = [];
-        render();
+        updateStats();
         renderMembersPage();
+        renderDashboardLists();
     }
 }
 
 async function addMember(name, phone, startDate, durationMonths) {
-    try {
+    try {  
+        if (!phone || phone.trim() === '') {
+         showToast('⚠️ Phone number is required.', 'error');
+        return;
+         }
         const res = await fetch(`${API_BASE}/members`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -108,7 +114,9 @@ async function addMember(name, phone, startDate, durationMonths) {
         if (!res.ok) throw new Error(await res.text());
         const newMember = await res.json();
         members.push(newMember);
-        render();
+        updateStats();
+        renderMembersPage();        
+        renderDashboardLists();       
         showToast(`✅ ${newMember.name} added!`, 'success');
     } catch (err) {
         showToast('Error adding member: ' + err.message, 'error');
@@ -121,7 +129,9 @@ async function deleteMember(id) {
         const res = await fetch(`${API_BASE}/members/${id}`, { method: 'DELETE' });
         if (!res.ok) throw new Error('Delete failed');
         members = members.filter(m => m.id !== id);
-        render();
+        updateStats();
+        renderMembersPage();          
+        renderDashboardLists();       
         showToast('Member removed', 'info');
     } catch (err) {
         showToast('Error deleting: ' + err.message, 'error');
@@ -134,7 +144,9 @@ async function clearAllData() {
         const res = await fetch(`${API_BASE}/members`, { method: 'DELETE' });
         if (!res.ok) throw new Error('Clear failed');
         members = [];
-        render();
+        updateStats();
+        renderMembersPage();          
+        renderDashboardLists();      
         showToast('All data cleared', 'info');
     } catch (err) {
         showToast('Error clearing: ' + err.message, 'error');
@@ -184,14 +196,15 @@ async function confirmRenewal() {
         const updated = await res.json();
         const idx = members.findIndex(m => m.id === updated.id);
         if (idx !== -1) members[idx] = updated;
-        render();
+        updateStats();
+        renderMembersPage();          
+        renderDashboardLists();       
         closeRenewModal();
         showToast(`🔄 ${updated.name} renewed`, 'success');
     } catch (err) {
         showToast('Error renewing: ' + err.message, 'error');
     }
 }
-
 // ============================================================
 //  HELPERS
 // ============================================================
@@ -253,7 +266,10 @@ function render() {
     let filtered = [...members];
 
     if (search) {
-        filtered = filtered.filter(m => m.name.toLowerCase().includes(search));
+    filtered = filtered.filter(m => 
+        m.name.toLowerCase().includes(search) || 
+        (m.phone && m.phone.toLowerCase().includes(search))
+    );
     }
 
     if (filter === 'active') {
@@ -334,7 +350,10 @@ function renderMembersPage() {
     let filtered = [...members];
 
     if (search) {
-        filtered = filtered.filter(m => m.name.toLowerCase().includes(search));
+    filtered = filtered.filter(m => 
+        m.name.toLowerCase().includes(search) || 
+        (m.phone && m.phone.toLowerCase().includes(search))
+    );
     }
 
     if (filter === 'active') {
@@ -402,6 +421,61 @@ function renderMembersPage() {
     }
 
     tbody.innerHTML = html;
+}
+
+// ============================================================
+//  DASHBOARD LISTS
+// ============================================================
+
+function renderDashboardLists() {
+    const today = todayStr();
+
+    // Filter members
+    const expired = members.filter(m => getStatus(m.endDate) === 'expired');
+    const expiringSoon = members.filter(m => getStatus(m.endDate) === 'expiring-soon');
+    const newToday = members.filter(m => m.startDate === today);
+
+    // Render Expired
+    renderList('expiredList', expired, 'No expired members');
+
+    // Render Expiring Soon
+    renderList('expiringSoonList', expiringSoon, 'No members expiring soon');
+
+    // Render New & Renewed Today
+    renderList('newTodayList', newToday, 'No members added or renewed today');
+}
+// ============================================================
+//  UPDATE STATS
+// ============================================================
+function updateStats() {
+    const total = members.length;
+    const active = members.filter(m => getStatus(m.endDate) === 'active').length;
+    const expired = members.filter(m => getStatus(m.endDate) === 'expired').length;
+    document.getElementById('totalCount').textContent = total;
+    document.getElementById('activeCount').textContent = active;
+    document.getElementById('expiredCount').textContent = expired;
+}
+
+function renderList(elementId, membersList, emptyMessage) {
+    const container = document.getElementById(elementId);
+    if (!container) return;
+
+    if (membersList.length === 0) {
+        container.innerHTML = `<p class="text-muted">${emptyMessage}</p>`;
+        return;
+    }
+
+    let html = '<ul style="list-style: none; padding: 0; margin: 0;">';
+    for (const m of membersList) {
+        html += `
+            <li style="padding: 8px 0; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center;">
+                <span><strong>${escHtml(m.name)}</strong> ${m.phone ? '📞 ' + escHtml(m.phone) : ''}</span>
+                <span style="font-size: 0.8rem; color: var(--gray-600);">${formatDate(m.endDate)}</span>
+            </li>
+        `;
+    }
+    html += '</ul>';
+    container.innerHTML = html;
 }
 
 // ============================================================
@@ -531,7 +605,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (target.classList.contains('renew-btn')) {
             openRenewModal(id);
        }
-});
+    });
 
     // Init
     document.getElementById('memberStart').value = todayStr();
