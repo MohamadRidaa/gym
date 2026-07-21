@@ -89,10 +89,12 @@ async function loadMembers() {
         if (!res.ok) throw new Error('Failed to load members');
         members = await res.json();
         render();
+        renderMembersPage(); 
     } catch (err) {
         showToast('Error loading members: ' + err.message, 'error');
         members = [];
         render();
+        renderMembersPage();
     }
 }
 
@@ -321,6 +323,86 @@ function render() {
 
     tbody.innerHTML = html;
 }
+// ============================================================
+//  MEMBERS PAGE RENDER
+// ============================================================
+
+function renderMembersPage() {
+    const search = document.getElementById('membersSearchInput').value.toLowerCase().trim();
+    const filter = document.getElementById('membersFilterSelect').value;
+
+    let filtered = [...members];
+
+    if (search) {
+        filtered = filtered.filter(m => m.name.toLowerCase().includes(search));
+    }
+
+    if (filter === 'active') {
+        filtered = filtered.filter(m => getStatus(m.endDate) === 'active');
+    } else if (filter === 'expired') {
+        filtered = filtered.filter(m => getStatus(m.endDate) === 'expired');
+    } else if (filter === 'expiring-soon') {
+        filtered = filtered.filter(m => getStatus(m.endDate) === 'expiring-soon');
+    }
+
+    const tbody = document.getElementById('membersTableBody');
+    const empty = document.getElementById('membersEmptyState');
+
+    // Update stats
+    const total = members.length;
+    const active = members.filter(m => getStatus(m.endDate) === 'active').length;
+    const expired = members.filter(m => getStatus(m.endDate) === 'expired').length;
+    document.getElementById('membersTotalCount').textContent = total;
+    document.getElementById('membersActiveCount').textContent = active;
+    document.getElementById('membersExpiredCount').textContent = expired;
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+    empty.style.display = 'none';
+
+    let html = '';
+    for (const m of filtered) {
+        const status = getStatus(m.endDate);
+        const days = daysBetween(todayStr(), m.endDate);
+        let statusLabel, statusClass;
+        if (status === 'active') {
+            statusLabel = '✅ Active';
+            statusClass = 'active';
+        } else if (status === 'expiring-soon') {
+            statusLabel = '⚠️ Expiring soon';
+            statusClass = 'expiring-soon';
+        } else {
+            statusLabel = '❌ Expired';
+            statusClass = 'expired';
+        }
+
+        let daysClass = 'positive';
+        if (days < 0) daysClass = 'negative';
+        else if (days <= 7) daysClass = 'warning';
+
+        html += `
+            <tr>
+                <td><span class="member-name">${escHtml(m.name)}</span></td>
+                <td class="member-phone">${m.phone ? escHtml(m.phone) : '—'}</td>
+                <td>${formatDate(m.startDate)}</td>
+                <td>${formatDate(m.endDate)}</td>
+                <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+                <td><span class="days-remaining ${daysClass}">${formatDays(days)}</span></td>
+                <td style="text-align:center;">
+                    <div class="action-cell" style="justify-content:center;">
+                        <button class="btn btn-success btn-sm renew-btn" data-id="${m.id}">🔄 Renew</button>
+                        <button class="btn btn-danger btn-sm delete-btn" data-id="${m.id}">🗑️</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    tbody.innerHTML = html;
+}
 
 // ============================================================
 //  TOAST
@@ -382,7 +464,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Search & filter
     document.getElementById('searchInput').addEventListener('input', render);
     document.getElementById('filterSelect').addEventListener('change', render);
-
+    
+    // Members page search & filter
+    document.getElementById('membersSearchInput').addEventListener('input', renderMembersPage);
+    document.getElementById('membersFilterSelect').addEventListener('change', renderMembersPage);
+   
     // Clickable stat badges
     document.getElementById('activeBadge').addEventListener('click', function() {
         document.getElementById('filterSelect').value = 'active';
@@ -432,6 +518,20 @@ document.addEventListener('DOMContentLoaded', function() {
             openRenewModal(id);
         }
     });
+
+    // Event delegation for Members page buttons (delete & renew)
+    document.getElementById('membersTableBody').addEventListener('click', function(e) {
+        const target = e.target.closest('button');
+        if (!target) return;
+        const id = Number(target.dataset.id);
+        if (!id && id !== 0) return;
+
+        if (target.classList.contains('delete-btn')) {
+           deleteMember(id);
+        } else if (target.classList.contains('renew-btn')) {
+            openRenewModal(id);
+       }
+});
 
     // Init
     document.getElementById('memberStart').value = todayStr();

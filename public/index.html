@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -10,111 +10,234 @@
 
     <div class="app-container">
 
-        <header class="app-header">
-            <h1>🏋️ Gym Manager <span>v1.0</span></h1>
-            <div class="header-stats">
-                <div class="stat-badge active" id="activeBadge">✅ Active <span class="num" id="activeCount">0</span></div>
-                <div class="stat-badge expired" id="expiredBadge">⏰ Expired <span class="num" id="expiredCount">0</span></div>
-                <div class="stat-badge" id="totalBadge">👥 Total <span class="num" id="totalCount">0</span></div>
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🏋️ Gym</h2>
+                <p class="sidebar-subtitle">Manager</p>
             </div>
-        </header>
+            
+            <nav class="sidebar-nav">
+                <button class="sidebar-btn active" data-page="dashboard">
+                    <span class="icon">📊</span> Dashboard
+                </button>
+                <button class="sidebar-btn" data-page="add-member">
+                    <span class="icon">➕</span> Add Member
+                </button>
+                <button class="sidebar-btn" data-page="members">
+                    <span class="icon">👥</span> Members
+                </button>
+                <button class="sidebar-btn" data-page="settings">
+                    <span class="icon">⚙️</span> Settings
+                </button>
+            </nav>
 
-        <section class="card" id="addForm">
-            <div class="card-title">➕ Add New Member</div>
-            <form id="memberForm" autocomplete="off">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="memberName">Full Name *</label>
-                        <input type="text" id="memberName" placeholder="e.g. John Doe" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="memberPhone">Phone (optional)</label>
-                        <input type="text" id="memberPhone" placeholder="e.g. 555-1234" />
-                    </div>
-                    <div class="form-group">
-                        <label for="memberStart">Start Date *</label>
-                        <input type="date" id="memberStart" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="memberDuration">Duration *</label>
-                        <select id="memberDuration">
-                            <option value="1">1 month</option>
-                            <option value="3" selected>3 months</option>
-                            <option value="6">6 months</option>
-                            <option value="12">12 months</option>
-                        </select>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">➕ Add Member</button>
-                        <button type="reset" class="btn btn-outline">Clear</button>
-                    </div>
-                </div>
-            </form>
-        </section>
-
-        <section class="card">
-            <div class="card-title">📋 Members</div>
-
-            <div class="toolbar">
-                <div class="toolbar-left">
-                    <div class="search-box">
-                        <span class="icon">🔍</span>
-                        <input type="text" id="searchInput" placeholder="Search by name..." />
-                    </div>
-                    <select class="filter-select" id="filterSelect">
-                        <option value="all">All</option>
-                        <option value="active">Active</option>
-                        <option value="expired">Expired</option>
-                        <option value="expiring-soon">Expiring soon (≤ 7 days)</option>
-                    </select>
-                </div>
-                <div class="toolbar-right">
-                    <button class="btn btn-outline btn-sm" id="sortBtn">📅 Sort</button>
+            <div class="sidebar-footer">
+                <button class="sidebar-btn logout-btn" id="logoutBtn">
+                    <span class="icon">🚪</span> Logout
+                </button>
+                <div class="sidebar-user">
+                    <span>👤</span> gymowner
                 </div>
             </div>
+        </aside>
 
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Start</th>
-                            <th>End</th>
-                            <th>Status</th>
-                            <th>Days</th>
-                            <th style="text-align:center;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="memberTableBody"></tbody>
-                </table>
-            </div>
+        <!-- ===== MAIN CONTENT ===== -->
+        <main class="main-content">
 
-            <div id="emptyState" class="empty-state">
-                <span class="big-icon">🏋️</span>
-                <h3>No members yet</h3>
-                <p class="text-muted">Add your first member using the form above!</p>
-            </div>
+            <!-- ===== PAGE: DASHBOARD ===== -->
+            <section class="page" id="page-dashboard">
+                <header class="app-header">
+                    <h1>📊 Dashboard</h1>
+                    <div class="header-stats">
+                        <div class="stat-badge active" id="activeBadge">✅ Active <span class="num" id="activeCount">0</span></div>
+                        <div class="stat-badge expired" id="expiredBadge">⏰ Expired <span class="num" id="expiredCount">0</span></div>
+                        <div class="stat-badge" id="totalBadge">👥 Total <span class="num" id="totalCount">0</span></div>
+                    </div>
+                </header>
 
-            <div style="margin-top:16px; display:flex; justify-content:flex-end;">
-                <button class="btn btn-outline btn-sm" id="clearAllBtn" style="color:var(--danger); border-color:var(--danger);">🗑️ Clear All</button>
-            </div>
-        </section>
+                <!-- Member List -->
+                <div class="card">
+                    <div class="card-title">📋 Members</div>
+                    <div class="toolbar">
+                        <div class="toolbar-left">
+                            <div class="search-box">
+                                <span class="icon">🔍</span>
+                                <input type="text" id="searchInput" placeholder="Search by name..." />
+                            </div>
+                            <select class="filter-select" id="filterSelect">
+                                <option value="all">All</option>
+                                <option value="active">Active</option>
+                                <option value="expired">Expired</option>
+                                <option value="expiring-soon">Expiring soon (≤ 7 days)</option>
+                            </select>
+                        </div>
+                        <div class="toolbar-right">
+                            <button class="btn btn-outline btn-sm" id="sortBtn">📅 Sort</button>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Start</th>
+                                    <th>End</th>
+                                    <th>Status</th>
+                                    <th>Days</th>
+                                    <th style="text-align:center;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="memberTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="emptyState" class="empty-state">
+                        <span class="big-icon">🏋️</span>
+                        <h3>No members yet</h3>
+                        <p class="text-muted">Add your first member using the form above!</p>
+                    </div>
+
+                    <div style="margin-top:16px; display:flex; justify-content:flex-end;">
+                        <button class="btn btn-outline btn-sm" id="clearAllBtn" style="color:var(--danger); border-color:var(--danger);">🗑️ Clear All</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== PAGE: ADD MEMBER ===== -->
+            <section class="page" id="page-add-member" style="display:none;">
+                <header class="app-header">
+                    <h1>➕ Add New Member</h1>
+                </header>
+
+                <section class="card">
+                    <div class="card-title">➕ Add New Member</div>
+                    <form id="memberForm" autocomplete="off">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="memberName">Full Name *</label>
+                                <input type="text" id="memberName" placeholder="e.g. John Doe" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="memberPhone">Phone (optional)</label>
+                                <input type="text" id="memberPhone" placeholder="e.g. 555-1234" />
+                            </div>
+                            <div class="form-group">
+                                <label for="memberStart">Start Date *</label>
+                                <input type="date" id="memberStart" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="memberDuration">Duration *</label>
+                                <select id="memberDuration">
+                                    <option value="1">1 month</option>
+                                    <option value="3" selected>3 months</option>
+                                    <option value="6">6 months</option>
+                                    <option value="12">12 months</option>
+                                </select>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">➕ Add Member</button>
+                                <button type="reset" class="btn btn-outline">Clear</button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </section>
+
+            <!-- ===== PAGE: MEMBERS ===== -->
+            <section class="page" id="page-members" style="display:none;">
+                <header class="app-header">
+                    <h1>👥 All Members</h1>
+                    <div class="header-stats">
+                        <div class="stat-badge active">✅ Active <span class="num" id="membersActiveCount">0</span></div>
+                        <div class="stat-badge expired">⏰ Expired <span class="num" id="membersExpiredCount">0</span></div>
+                        <div class="stat-badge">👥 Total <span class="num" id="membersTotalCount">0</span></div>
+                    </div>
+                </header>
+
+                <div class="card">
+                    <div class="card-title">📋 All Members</div>
+                    <div class="toolbar">
+                        <div class="toolbar-left">
+                            <div class="search-box">
+                                <span class="icon">🔍</span>
+                                <input type="text" id="membersSearchInput" placeholder="Search by name..." />
+                            </div>
+                            <select class="filter-select" id="membersFilterSelect">
+                                <option value="all">All</option>
+                                <option value="active">Active</option>
+                                <option value="expired">Expired</option>
+                                <option value="expiring-soon">Expiring soon (≤ 7 days)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Start</th>
+                                    <th>End</th>
+                                    <th>Status</th>
+                                    <th>Days</th>
+                                    <th style="text-align:center;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="membersTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="membersEmptyState" class="empty-state">
+                        <span class="big-icon">🏋️</span>
+                        <h3>No members yet</h3>
+                        <p class="text-muted">Add your first member using the form above!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== PAGE: SETTINGS ===== -->
+            <section class="page" id="page-settings" style="display:none;">
+                <header class="app-header">
+                    <h1>⚙️ Settings</h1>
+                </header>
+
+                <div class="card">
+                    <div class="card-title">⚙️ Settings</div>
+                    <div style="padding: 20px 0;">
+                        <h3>🔑 Change Password</h3>
+                        <p style="color: var(--gray-600);">To change your password, edit the <code>login.html</code> file and update the <code>VALID_PASSWORD</code> variable.</p>
+                        <br>
+                        <h3>📊 Data Management</h3>
+                        <button class="btn btn-danger" id="clearAllBtn2">🗑️ Clear All Members</button>
+                        <br><br>
+                        <p style="color: var(--gray-600); font-size: 0.9rem;">
+                            <strong>Version:</strong> v1.0<br>
+                            <strong>Deployed:</strong> Render.com<br>
+                            <strong>Database:</strong> PostgreSQL (Neon.tech)
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
     </div>
 
+    <!-- TOAST CONTAINER -->
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- RENEW MODAL -->
     <div class="modal-overlay" id="renewModal" hidden>
         <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="renewModalTitle">
             <h3 id="renewModalTitle">Renew Membership</h3>
             <p id="renewMemberName" class="modal-member-name">Member</p>
-
             <label class="modal-label" for="renewStartDate">Start Date</label>
             <input type="date" id="renewStartDate" />
-
             <label class="modal-label" for="renewMonths">Months</label>
             <input type="number" id="renewMonths" min="1" value="3" />
-
             <div class="modal-actions">
                 <button type="button" class="btn btn-outline" id="cancelRenew">Cancel</button>
                 <button type="button" class="btn btn-primary" id="confirmRenew">Renew</button>
