@@ -1,7 +1,60 @@
- // ============================================================
-//  AUTHENTICATION CHECK
+// ============================================================
+//  SIDEBAR NAVIGATION
 // ============================================================
 
+// Page navigation
+function navigateTo(pageId) {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(page => {
+        page.style.display = 'none';
+    });
+    
+    // Show the target page
+    const targetPage = document.getElementById(`page-${pageId}`);
+    if (targetPage) {
+        targetPage.style.display = 'block';
+    }
+    
+    // Update active button
+    document.querySelectorAll('.sidebar-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.page === pageId) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+// Sidebar button clicks
+document.querySelectorAll('.sidebar-btn[data-page]').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const page = this.dataset.page;
+        navigateTo(page);
+        
+        // Close sidebar on mobile
+        document.getElementById('sidebar').classList.remove('open');
+    });
+});
+
+// Mobile hamburger menu
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+}
+
+// Add hamburger button
+const hamburger = document.createElement('button');
+hamburger.className = 'sidebar-toggle';
+hamburger.innerHTML = '☰';
+hamburger.onclick = toggleSidebar;
+document.body.prepend(hamburger);
+
+// ============================================================
+//  LOGOUT
+// ============================================================
+
+document.getElementById('logoutBtn').addEventListener('click', function() {
+    sessionStorage.removeItem('loggedIn');
+    window.location.href = '/login.html';
+});
 // Check if user is logged in
 (function checkAuth() {
     const loggedIn = sessionStorage.getItem('loggedIn');
