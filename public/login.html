@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Gym Manager Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 16px;
+            padding: 48px 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-container h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 8px;
+            color: #2d3436;
+        }
+
+        .login-container .subtitle {
+            text-align: center;
+            color: #636e72;
+            margin-bottom: 32px;
+            font-size: 0.95rem;
+        }
+
+        .login-container .icon {
+            text-align: center;
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #2d3436;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #6c5ce7;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.15s;
+        }
+
+        .btn-login:hover {
+            background: #5a4bd1;
+        }
+
+        .btn-login:active {
+            transform: scale(0.97);
+        }
+
+        .error-message {
+            background: #ffeaa7;
+            color: #6c4a00;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #b2bec3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <span class="icon">🏋️</span>
+        <h1>Gym Manager</h1>
+        <p class="subtitle">Sign in to continue</p>
+
+        <div class="error-message" id="errorMessage">
+            ❌ Incorrect username or password
+        </div>
+
+        <form id="loginForm" autocomplete="off">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter username" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter password" required>
+            </div>
+
+            <button type="submit" class="btn-login">🔓 Sign In</button>
+        </form>
+
+        <div class="footer">
+            Gym Manager v1.0 • Private Access Only
+        </div>
+    </div>
+
+    <script>
+        // 🔑 Set your credentials here (change these!)
+        const VALID_USERNAME = 'gymowner';
+        const VALID_PASSWORD = 'GymMaster2026!';
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorEl = document.getElementById('errorMessage');
+
+            if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                // ✅ Login successful – save to session and redirect
+                sessionStorage.setItem('loggedIn', 'true');
+                window.location.href = '/';
+            } else {
+                // ❌ Login failed
+                errorEl.classList.add('show');
+                errorEl.textContent = '❌ Incorrect username or password';
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            }
+        });
+    </script>
+
+</body>
+</html>
