@@ -1,4 +1,21 @@
  // ============================================================
+//  AUTHENTICATION CHECK
+// ============================================================
+
+// Check if user is logged in
+(function checkAuth() {
+    const loggedIn = sessionStorage.getItem('loggedIn');
+    if (!loggedIn || loggedIn !== 'true') {
+        // Not logged in – redirect to login page
+        window.location.href = '/login.html';
+    }
+})();
+
+// If the user tries to go back to login after being logged in
+if (window.location.pathname === '/login.html' && sessionStorage.getItem('loggedIn') === 'true') {
+    window.location.href = '/';
+}
+ // ============================================================
 //  BACKEND API CONFIGURATION
 // ============================================================
 const API_BASE = (function() {
