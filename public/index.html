@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -13,10 +13,13 @@
         <!-- ===== SIDEBAR ===== -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h2>🏋️ Gym</h2>
-                <p class="sidebar-subtitle">Manager</p>
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                    <img src="logo-login.jpg" alt="Gym One" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" />
+                    <h2 style="font-size: 1.3rem; margin: 0;">GYM ONE</h2>
+                </div>
+                <p class="sidebar-subtitle">Member Manager</p>
             </div>
-            
+
             <nav class="sidebar-nav">
                 <button class="sidebar-btn active" data-page="dashboard">
                     <span class="icon">📊</span> Dashboard
@@ -45,54 +48,57 @@
         <!-- ===== MAIN CONTENT ===== -->
         <main class="main-content">
 
-         <!-- ===== PAGE: DASHBOARD ===== -->
+            <!-- ===== PAGE: DASHBOARD ===== -->
             <section class="page" id="page-dashboard">
-            <header class="app-header">
-            <h1>📊 Dashboard</h1>
-            <div class="header-stats">
-            <div class="stat-badge active" id="activeBadge">✅ Active <span class="num" id="activeCount">0</span></div>
-            <div class="stat-badge expired" id="expiredBadge">⏰ Expired <span class="num" id="expiredCount">0</span></div>
-            <div class="stat-badge" id="totalBadge">👥 Total <span class="num" id="totalCount">0</span></div>
-        </div>
-    </header>
+                <!-- HEADER – SOLID WHITE -->
+                <header class="app-header">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <span style="font-weight: 700; font-size: 1.6rem; background: #4a90d9; color: #000000; padding: 6px 24px; border-radius: 12px; letter-spacing: 1px;">GYM ONE</span>
+                        <span style="font-weight: 400; font-size: 1.2rem; color: #1a1a2e;">Dashboard</span>
+                    </div>
+                    <div class="header-stats">
+                        <div class="stat-badge active" id="activeBadge">💪 Active <span class="num" id="activeCount">0</span></div>
+                        <div class="stat-badge expired" id="expiredBadge">⏰ Expired <span class="num" id="expiredCount">0</span></div>
+                        <div class="stat-badge" id="totalBadge">🏋️ Total <span class="num" id="totalCount">0</span></div>
+                    </div>
+                </header>
 
-    <!-- ===== THREE LISTS ===== -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <!-- ===== THREE LISTS ===== -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
 
-        <!-- Expired Members -->
-        <div class="card">
-            <div class="card-title">⏰ Expired Members</div>
-            <div id="expiredList" style="max-height: 300px; overflow-y: auto;">
-                <p class="text-muted">No expired members</p>
-            </div>
-        </div>
+                    <!-- Expired Members -->
+                    <div class="card">
+                        <div class="card-title">⏰ Expired Members</div>
+                        <div id="expiredList" style="max-height: 300px; overflow-y: auto;">
+                            <p class="text-muted">No expired members</p>
+                        </div>
+                    </div>
 
-        <!-- Expiring Soon -->
-        <div class="card">
-            <div class="card-title">⚠️ Expiring Soon (≤ 7 days)</div>
-            <div id="expiringSoonList" style="max-height: 300px; overflow-y: auto;">
-                <p class="text-muted">No members expiring soon</p>
-            </div>
-        </div>
+                    <!-- Expiring Soon -->
+                    <div class="card">
+                        <div class="card-title">⚠️ Expiring Soon (≤ 7 days)</div>
+                        <div id="expiringSoonList" style="max-height: 300px; overflow-y: auto;">
+                            <p class="text-muted">No members expiring soon</p>
+                        </div>
+                    </div>
 
-        <!-- New & Renewed Today -->
-        <div class="card">
-            <div class="card-title">🆕 New & Renewed Today</div>
-            <div id="newTodayList" style="max-height: 300px; overflow-y: auto;">
-                <p class="text-muted">No members added or renewed today</p>
-            </div>
-        </div>
+                    <!-- New & Renewed Today -->
+                    <div class="card">
+                        <div class="card-title">🆕 New & Renewed Today</div>
+                        <div id="newTodayList" style="max-height: 300px; overflow-y: auto;">
+                            <p class="text-muted">No members added or renewed today</p>
+                        </div>
+                    </div>
 
-    </div>
-</section>  
+                </div>
+            </section>
 
             <!-- ===== PAGE: ADD MEMBER ===== -->
             <section class="page" id="page-add-member" style="display:none;">
                 <header class="app-header">
-                    <h1>➕ Add New Member</h1>
+                    <h1 style="color: #1a1a2e;">➕ Add New Member</h1>
                 </header>
-
-                <section class="card">
+                <div class="card">
                     <div class="card-title">➕ Add New Member</div>
                     <form id="memberForm" autocomplete="off">
                         <div class="form-grid">
@@ -101,7 +107,7 @@
                                 <input type="text" id="memberName" placeholder="e.g. John Doe" required />
                             </div>
                             <div class="form-group">
-                                <label for="memberPhone">Phone </label>
+                                <label for="memberPhone">Phone</label>
                                 <input type="text" id="memberPhone" placeholder="e.g. 555-1234" required pattern="[0-9+\-() ]+" title="Please enter a valid phone number"/>
                             </div>
                             <div class="form-group">
@@ -112,7 +118,7 @@
                                 <label for="memberDuration">Duration *</label>
                                 <select id="memberDuration">
                                     <option value="1" selected>1 month</option>
-                                    <option value="3" >3 months</option>
+                                    <option value="3">3 months</option>
                                     <option value="6">6 months</option>
                                     <option value="12">12 months</option>
                                 </select>
@@ -123,13 +129,13 @@
                             </div>
                         </div>
                     </form>
-                </section>
+                </div>
             </section>
 
             <!-- ===== PAGE: MEMBERS ===== -->
             <section class="page" id="page-members" style="display:none;">
                 <header class="app-header">
-                    <h1>👥 All Members</h1>
+                    <h1 style="color: #1a1a2e;">👥 All Members</h1>
                     <div class="header-stats">
                         <div class="stat-badge active">✅ Active <span class="num" id="membersActiveCount">0</span></div>
                         <div class="stat-badge expired">⏰ Expired <span class="num" id="membersExpiredCount">0</span></div>
@@ -182,9 +188,8 @@
             <!-- ===== PAGE: SETTINGS ===== -->
             <section class="page" id="page-settings" style="display:none;">
                 <header class="app-header">
-                    <h1>⚙️ Settings</h1>
+                    <h1 style="color: #1a1a2e;">⚙️ Settings</h1>
                 </header>
-
                 <div class="card">
                     <div class="card-title">⚙️ Settings</div>
                     <div style="padding: 20px 0;">

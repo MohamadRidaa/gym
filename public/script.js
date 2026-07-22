@@ -30,19 +30,54 @@ document.querySelectorAll('.sidebar-btn[data-page]').forEach(btn => {
         const page = this.dataset.page;
         navigateTo(page);
         
-        // Close sidebar on mobile
-        document.getElementById('sidebar').classList.remove('open');
+        // Close sidebar on mobile and show hamburger
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.querySelector('.sidebar-toggle');
+        sidebar.classList.remove('open');
+        hamburger.style.display = 'block';
     });
 });
 
 // Mobile hamburger menu
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.querySelector('.sidebar-toggle');
+    sidebar.classList.toggle('open');
+    
+    // Hide hamburger when sidebar is open
+    if (sidebar.classList.contains('open')) {
+        hamburger.style.display = 'none';
+    } else {
+        hamburger.style.display = 'block';
+    }
 }
+// Close sidebar when clicking on main content
+document.querySelector('.main-content').addEventListener('click', function() {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.querySelector('.sidebar-toggle');
+    if (sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+        hamburger.style.display = 'block';
+    }
+});
+
+// Close sidebar when clicking anywhere outside the sidebar
+document.body.addEventListener('click', function(e) {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.querySelector('.sidebar-toggle');
+    // Check if click is NOT on the sidebar and NOT on the hamburger button
+    if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+        if (sidebar.classList.contains('open')) {
+            sidebar.classList.remove('open');
+            hamburger.style.display = 'block';
+        }
+    }
+});
 
 // Add hamburger button
 const hamburger = document.createElement('button');
 hamburger.className = 'sidebar-toggle';
+hamburger.id = 'hamburgerBtn'; 
 hamburger.innerHTML = '☰';
 hamburger.onclick = toggleSidebar;
 document.body.prepend(hamburger);
@@ -159,6 +194,7 @@ async function clearAllData() {
 let activeRenewMemberId = null;
 
 function openRenewModal(id) {
+     console.log('openRenewModal called with id:', id); 
     const memberId = Number(id);
     const member = members.find(m => m.id === memberId);
     if (!member) {
@@ -256,89 +292,7 @@ function escHtml(str) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// ============================================================
-//  RENDER
-// ============================================================
-function render() {
-    const search = document.getElementById('searchInput').value.toLowerCase().trim();
-    const filter = document.getElementById('filterSelect').value;
-
-    let filtered = [...members];
-
-    if (search) {
-    filtered = filtered.filter(m => 
-        m.name.toLowerCase().includes(search) || 
-        (m.phone && m.phone.toLowerCase().includes(search))
-    );
-    }
-
-    if (filter === 'active') {
-        filtered = filtered.filter(m => getStatus(m.endDate) === 'active');
-    } else if (filter === 'expired') {
-        filtered = filtered.filter(m => getStatus(m.endDate) === 'expired');
-    } else if (filter === 'expiring-soon') {
-        filtered = filtered.filter(m => getStatus(m.endDate) === 'expiring-soon');
-    }
-
-    filtered.sort((a, b) => a.endDate.localeCompare(b.endDate));
-
-    const tbody = document.getElementById('memberTableBody');
-    const empty = document.getElementById('emptyState');
-
-    const total = members.length;
-    const active = members.filter(m => getStatus(m.endDate) === 'active').length;
-    const expired = members.filter(m => getStatus(m.endDate) === 'expired').length;
-    document.getElementById('totalCount').textContent = total;
-    document.getElementById('activeCount').textContent = active;
-    document.getElementById('expiredCount').textContent = expired;
-
-    if (filtered.length === 0) {
-        tbody.innerHTML = '';
-        empty.style.display = 'block';
-        return;
-    }
-    empty.style.display = 'none';
-
-    let html = '';
-    for (const m of filtered) {
-        const status = getStatus(m.endDate);
-        const days = daysBetween(todayStr(), m.endDate);
-        let statusLabel, statusClass;
-        if (status === 'active') {
-            statusLabel = '✅ Active';
-            statusClass = 'active';
-        } else if (status === 'expiring-soon') {
-            statusLabel = '⚠️ Expiring soon';
-            statusClass = 'expiring-soon';
-        } else {
-            statusLabel = '❌ Expired';
-            statusClass = 'expired';
-        }
-
-        let daysClass = 'positive';
-        if (days < 0) daysClass = 'negative';
-        else if (days <= 7) daysClass = 'warning';
-
-        html += `
-            <tr>
-                <td><span class="member-name">${escHtml(m.name)}</span></td>
-                <td class="member-phone">${m.phone ? escHtml(m.phone) : '—'}</td>
-                <td>${formatDate(m.startDate)}</td>
-                <td>${formatDate(m.endDate)}</td>
-                <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
-                <td><span class="days-remaining ${daysClass}">${formatDays(days)}</span></td>
-                <td style="text-align:center;">
-                    <div class="action-cell" style="justify-content:center;">
-                        <button class="btn btn-success btn-sm renew-btn" data-id="${m.id}">🔄 Renew</button>
-                        <button class="btn btn-danger btn-sm delete-btn" data-id="${m.id}">🗑️</button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    }
-
-    tbody.innerHTML = html;
-}
+// 
 // ============================================================
 //  MEMBERS PAGE RENDER
 // ============================================================
@@ -435,14 +389,22 @@ function renderDashboardLists() {
     const expiringSoon = members.filter(m => getStatus(m.endDate) === 'expiring-soon');
     const newToday = members.filter(m => m.startDate === today);
 
-    // Render Expired
-    renderList('expiredList', expired, 'No expired members');
+    // Render Expired – overdue days in red
+    renderList('expiredList', expired, 'No expired members', function(m) {
+        const days = daysBetween(m.endDate, today);
+        return `Overdue ${Math.abs(days)} days`;
+    }, 'red');
 
-    // Render Expiring Soon
-    renderList('expiringSoonList', expiringSoon, 'No members expiring soon');
+    // Render Expiring Soon – days left in orange
+    renderList('expiringSoonList', expiringSoon, 'No members expiring soon', function(m) {
+        const days = daysBetween(today, m.endDate);
+        return `${days} days left`;
+    }, 'orange');
 
-    // Render New & Renewed Today
-    renderList('newTodayList', newToday, 'No members added or renewed today');
+    // Render New & Renewed Today – "Today" in green
+    renderList('newTodayList', newToday, 'No members added or renewed today', function(m) {
+        return 'Today';
+    }, 'green');
 }
 // ============================================================
 //  UPDATE STATS
@@ -456,7 +418,7 @@ function updateStats() {
     document.getElementById('expiredCount').textContent = expired;
 }
 
-function renderList(elementId, membersList, emptyMessage) {
+function renderList(elementId, membersList, emptyMessage, daysFormatter, daysColor) {
     const container = document.getElementById(elementId);
     if (!container) return;
 
@@ -465,19 +427,37 @@ function renderList(elementId, membersList, emptyMessage) {
         return;
     }
 
-    let html = '<ul style="list-style: none; padding: 0; margin: 0;">';
+    // Define color mapping
+    const colorMap = {
+        'red': '#e74c3c',
+        'orange': '#f39c12',
+        'green': '#27ae60'
+    };
+    const color = colorMap[daysColor] || '#636e72';
+
+    let html = `
+        <div style="display: grid; grid-template-columns: 2fr 1.2fr 1.2fr 1fr; gap: 8px; font-weight: 600; padding: 6px 0; border-bottom: 2px solid rgba(0,0,0,0.1); color: #2d3436; font-size: 0.85rem;">
+            <span>Name</span>
+            <span>Phone</span>
+            <span>Start</span>
+            <span>Days</span>
+        </div>
+    `;
+
     for (const m of membersList) {
+        const daysText = daysFormatter ? daysFormatter(m) : '';
         html += `
-            <li style="padding: 8px 0; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center;">
-                <span><strong>${escHtml(m.name)}</strong> ${m.phone ? '📞 ' + escHtml(m.phone) : ''}</span>
-                <span style="font-size: 0.8rem; color: var(--gray-600);">${formatDate(m.endDate)}</span>
-            </li>
+            <div style="display: grid; grid-template-columns: 2fr 1.2fr 1.2fr 1fr; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.05); align-items: center; color: #2d3436; font-size: 0.9rem;">
+                <span style="font-weight: 600;">${escHtml(m.name)}</span>
+                <span>${m.phone ? escHtml(m.phone) : '—'}</span>
+                <span>${formatDate(m.startDate)}</span>
+                <span style="color: ${color}; font-weight: 600;">${daysText}</span>
+            </div>
         `;
     }
-    html += '</ul>';
+
     container.innerHTML = html;
 }
-
 // ============================================================
 //  TOAST
 // ============================================================
@@ -535,42 +515,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('memberName').focus();
     });
 
-    // Search & filter
-    document.getElementById('searchInput').addEventListener('input', render);
-    document.getElementById('filterSelect').addEventListener('change', render);
-    
     // Members page search & filter
     document.getElementById('membersSearchInput').addEventListener('input', renderMembersPage);
     document.getElementById('membersFilterSelect').addEventListener('change', renderMembersPage);
-   
-    // Clickable stat badges
-    document.getElementById('activeBadge').addEventListener('click', function() {
-        document.getElementById('filterSelect').value = 'active';
-        render();
-    });
-    document.getElementById('expiredBadge').addEventListener('click', function() {
-        document.getElementById('filterSelect').value = 'expired';
-        render();
-    });
-    document.getElementById('totalBadge').addEventListener('click', function() {
-        document.getElementById('filterSelect').value = 'all';
-        render();
-    });
-
-    // Sort
-    let sortAsc = true;
-    document.getElementById('sortBtn').addEventListener('click', function() {
-        sortAsc = !sortAsc;
-        members.sort((a, b) => {
-            const cmp = a.endDate.localeCompare(b.endDate);
-            return sortAsc ? cmp : -cmp;
-        });
-        render();
-        showToast(`📅 Sorted ${sortAsc ? 'oldest → newest' : 'newest → oldest'}`, 'info');
-    });
-
-    // Clear all
-    document.getElementById('clearAllBtn').addEventListener('click', clearAllData);
 
     // Renew modal
     document.getElementById('cancelRenew').addEventListener('click', closeRenewModal);
@@ -579,32 +526,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.id === 'renewModal') closeRenewModal();
     });
 
-    // Event delegation for dynamic buttons (delete & renew)
-    document.getElementById('memberTableBody').addEventListener('click', function(e) {
-        const target = e.target.closest('button');
+    // Global event listener for renew/delete buttons (works everywhere)
+    document.addEventListener('click', function(e) {
+        const target = e.target.closest('button.renew-btn, button.delete-btn');
         if (!target) return;
         const id = Number(target.dataset.id);
         if (!id && id !== 0) return;
-
         if (target.classList.contains('delete-btn')) {
             deleteMember(id);
         } else if (target.classList.contains('renew-btn')) {
             openRenewModal(id);
         }
-    });
-
-    // Event delegation for Members page buttons (delete & renew)
-    document.getElementById('membersTableBody').addEventListener('click', function(e) {
-        const target = e.target.closest('button');
-        if (!target) return;
-        const id = Number(target.dataset.id);
-        if (!id && id !== 0) return;
-
-        if (target.classList.contains('delete-btn')) {
-           deleteMember(id);
-        } else if (target.classList.contains('renew-btn')) {
-            openRenewModal(id);
-       }
     });
 
     // Init
