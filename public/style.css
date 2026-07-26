@@ -887,3 +887,12 @@ tbody td {
 #newTodayList > div {
     color: #2d3436;
 }
+/* Member Details Modal – ensure text is dark */
+.modal-card p,
+.modal-card span,
+.modal-card h3,
+.modal-card h4,
+.modal-card strong,
+#detailStatus {
+    color: #1a1a2e !important;
+}

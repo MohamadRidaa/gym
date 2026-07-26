@@ -30,6 +30,9 @@
                 <button class="sidebar-btn" data-page="members">
                     <span class="icon">👥</span> Members
                 </button>
+                <button class="sidebar-btn" data-page="archived">
+                    <span class="icon">📁</span> Archived
+                </button>
                 <button class="sidebar-btn" data-page="settings">
                     <span class="icon">⚙️</span> Settings
                 </button>
@@ -50,7 +53,6 @@
 
             <!-- ===== PAGE: DASHBOARD ===== -->
             <section class="page" id="page-dashboard">
-                <!-- HEADER – SOLID WHITE -->
                 <header class="app-header">
                     <div style="display: flex; align-items: center; gap: 16px;">
                         <span style="font-weight: 700; font-size: 1.6rem; background: #4a90d9; color: #000000; padding: 6px 24px; border-radius: 12px; letter-spacing: 1px;">GYM ONE</span>
@@ -107,7 +109,7 @@
                                 <input type="text" id="memberName" placeholder="e.g. John Doe" required />
                             </div>
                             <div class="form-group">
-                                <label for="memberPhone">Phone</label>
+                                <label for="memberPhone">Phone *</label>
                                 <input type="text" id="memberPhone" placeholder="e.g. 555-1234" required pattern="[0-9+\-() ]+" title="Please enter a valid phone number"/>
                             </div>
                             <div class="form-group">
@@ -149,7 +151,7 @@
                         <div class="toolbar-left">
                             <div class="search-box">
                                 <span class="icon">🔍</span>
-                                <input type="text" id="membersSearchInput" placeholder="Search by name..." />
+                                <input type="text" id="membersSearchInput" placeholder="Search by name or phone..." />
                             </div>
                             <select class="filter-select" id="membersFilterSelect">
                                 <option value="all">All</option>
@@ -166,8 +168,6 @@
                                 <tr>
                                     <th>Name</th>
                                     <th>Phone</th>
-                                    <th>Start</th>
-                                    <th>End</th>
                                     <th>Status</th>
                                     <th>Days</th>
                                     <th style="text-align:center;">Actions</th>
@@ -185,6 +185,38 @@
                 </div>
             </section>
 
+            <!-- ===== PAGE: ARCHIVED ===== -->
+            <section class="page" id="page-archived" style="display:none;">
+                <header class="app-header">
+                    <h1 style="color: #1a1a2e;">📁 Archived Members</h1>
+                    <div class="header-stats">
+                        <div class="stat-badge">📦 Total <span class="num" id="archivedCount">0</span></div>
+                    </div>
+                </header>
+                <div class="card">
+                    <div class="card-title">📋 Archived Members</div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Start</th>
+                                    <th>End</th>
+                                    <th style="text-align:center;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="archivedTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="archivedEmptyState" class="empty-state">
+                        <span class="big-icon">📁</span>
+                        <h3>No archived members</h3>
+                        <p class="text-muted">Deleted members will appear here.</p>
+                    </div>
+                </div>
+            </section>
+
             <!-- ===== PAGE: SETTINGS ===== -->
             <section class="page" id="page-settings" style="display:none;">
                 <header class="app-header">
@@ -197,10 +229,10 @@
                         <p style="color: var(--gray-600);">To change your password, edit the <code>login.html</code> file and update the <code>VALID_PASSWORD</code> variable.</p>
                         <br>
                         <h3>📊 Data Management</h3>
-                        <button class="btn btn-danger" id="clearAllBtn2">🗑️ Clear All Members</button>
+                        <button class="btn btn-danger" id="clearAllBtn2">🗑️ Clear All Members (Hard Delete)</button>
                         <br><br>
                         <p style="color: var(--gray-600); font-size: 0.9rem;">
-                            <strong>Version:</strong> v1.0<br>
+                            <strong>Version:</strong> v2.0<br>
                             <strong>Deployed:</strong> Render.com<br>
                             <strong>Database:</strong> PostgreSQL (Neon.tech)
                         </p>
@@ -226,6 +258,31 @@
             <div class="modal-actions">
                 <button type="button" class="btn btn-outline" id="cancelRenew">Cancel</button>
                 <button type="button" class="btn btn-primary" id="confirmRenew">Renew</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MEMBER DETAILS MODAL (with history) -->
+    <div class="modal-overlay" id="memberDetailsModal" hidden>
+        <div class="modal-card" style="max-width: 500px; max-height: 80vh; overflow-y: auto;">
+            <h3 id="memberDetailsTitle">👤 Member Details</h3>
+            <div id="memberDetailsContent" style="padding: 10px 0;">
+                <p><strong>Name:</strong> <span id="detailName"></span></p>
+                <p><strong>Phone:</strong> <span id="detailPhone"></span></p>
+                <p><strong>Start Date:</strong> <span id="detailStartDate"></span></p>
+                <p><strong>End Date:</strong> <span id="detailEndDate"></span></p>
+                <p id="detailStatus" style="margin-top: 8px;"></p>
+                
+                <hr style="margin: 16px 0; border: none; border-top: 1px solid #e9ecef;">
+                
+                <h4 style="margin: 0 0 10px 0;">📋 Membership History</h4>
+                <div id="memberHistoryContainer" style="max-height: 200px; overflow-y: auto; font-size: 0.9rem;">
+                    <p class="text-muted">Loading history...</p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" id="closeMemberDetails">Close</button>
+                <button type="button" class="btn btn-primary" id="restoreFromDetails" style="display:none;">🔄 Restore Member</button>
             </div>
         </div>
     </div>
