@@ -703,8 +703,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (id) restoreMember(id);
     });
 
-    // Clear all button in settings
-    document.getElementById('clearAllBtn2').addEventListener('click', clearAllData);
 
     // Global event listener for dynamic buttons
     document.addEventListener('click', function(e) {
