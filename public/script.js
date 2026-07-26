@@ -332,7 +332,17 @@ console.log('End:', member.endDate);
     detailsIsArchived = isArchived;
 
     document.getElementById('detailName').textContent = member.name;
-    document.getElementById('detailPhone').textContent = member.phone || '—';
+   const phoneEl = document.getElementById('detailPhone');
+if (member.phone) {
+    // Clean the phone number: keep only digits and '+' (for international)
+    const cleanPhone = member.phone.replace(/[^0-9+]/g, '');
+    // Generate the renewal message and URL-encode it
+    const message = encodeURIComponent(getRenewalMessage(member));
+    // Build the SMS link
+    const waLink = `https://wa.me/${cleanPhone}?text=${message}`;
+phoneEl.innerHTML = `<a href="${waLink}" target="_blank" style="color:#4a90d9;text-decoration:underline;">${member.phone}</a>`;}
+  else {  phoneEl.textContent = '—';
+}  
     document.getElementById('detailStartDate').textContent = formatDate(member.startDate);
     document.getElementById('detailEndDate').textContent = formatDate(member.endDate);
 
@@ -418,7 +428,11 @@ function escHtml(str) {
     if (!str) return '';
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
-
+function getRenewalMessage(member) {
+    const name = member.name || 'Member';
+    const endDate = formatDate(member.endDate);
+    return `Dear ${name}, your gym membership expires on ${endDate}. Please renew your membership to continue enjoying our services. Thank you!`;
+}
 // ============================================================
 //  RENDER: MEMBERS PAGE (no Start/End columns)
 // ============================================================
