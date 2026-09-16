@@ -1,0 +1,7 @@
+node_modules/
+.env
+.env.*
+gym.db
+*.db
+ngrok.exe
+.vscode/
