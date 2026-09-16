@@ -167,29 +167,35 @@
     </div>
 
     <script>
-        // 🔑 Set your credentials here (change these!)
-        const VALID_USERNAME = 'gymowner';
-        const VALID_PASSWORD = 'GymMaster2026!';
+       
+       document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const errorEl = document.getElementById('errorMessage');
 
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const errorEl = document.getElementById('errorMessage');
-
-            if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-                // ✅ Login successful – save to session and redirect
-                sessionStorage.setItem('loggedIn', 'true');
-                window.location.href = '/';
-            } else {
-                // ❌ Login failed
-                errorEl.classList.add('show');
-                errorEl.textContent = '❌ Incorrect username or password';
-                document.getElementById('password').value = '';
-                document.getElementById('password').focus();
-            }
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
         });
+
+        if (response.ok) {
+            window.location.href = '/';
+        } else {
+            errorEl.classList.add('show');
+            errorEl.textContent = '❌ Incorrect username or password';
+            document.getElementById('password').value = '';
+        }
+    } catch (error) {
+        errorEl.classList.add('show');
+        errorEl.textContent = 'Unable to login';
+    }
+});
     </script>
 
 </body>

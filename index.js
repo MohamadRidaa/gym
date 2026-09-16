@@ -1,34 +1,155 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const bcrypt = require('bcryptjs');
+const session = require('express-session');
 const pool = require('./db');
 
 const app = express();
+
+app.set('trust proxy', 1);
+
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
-// ----- GET all members (non-archived by default) -----
-app.get('/api/members', async (req, res) => {
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 1000 * 60 * 60 * 8
+    }
+}));
+
+function requireAuth(req, res, next) {
+    if (!req.session.user) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    next();
+}
+
+app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({
+            message: 'Username and password are required'
+        });
+    }
+
+    if (username !== process.env.ADMIN_USERNAME) {
+        return res.status(401).json({
+            message: 'Invalid credentials'
+        });
+    }
+
+    try {
+        const validPassword = await bcrypt.compare(
+            password,
+            process.env.ADMIN_PASSWORD_HASH
+        );
+
+        if (!validPassword) {
+            return res.status(401).json({
+                message: 'Invalid credentials'
+            });
+        }
+
+        req.session.user = { username };
+
+        res.json({
+            message: 'Login successful'
+        });
+
+    } catch (err) {
+        console.error('Login error:', err);
+
+        res.status(500).json({
+            message: 'Server error'
+        });
+    }
+});
+
+app.post('/api/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({
+                message: 'Could not log out'
+            });
+        }
+
+        res.clearCookie('connect.sid');
+
+        res.json({
+            message: 'Logged out successfully'
+        });
+    });
+});
+
+app.get('/api/session', (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({
+            loggedIn: false
+        });
+    }
+
+    res.json({
+        loggedIn: true,
+        user: req.session.user.username
+    });
+});
+
+app.get('/', (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login.html');
+    }
+
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/index.html', (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login.html');
+    }
+
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.use(express.static(path.join(__dirname, 'public'), {
+    index: false
+}));
+
+app.get('/api/members', requireAuth, async (req, res) => {
     const { archived } = req.query;
-    let query = 'SELECT id, name, phone, start_date, duration_months, end_date FROM members';
+
+    let query = `
+        SELECT
+            id,
+            name,
+            phone,
+            to_char(start_date, 'YYYY-MM-DD') AS "startDate",
+            duration_months AS "durationMonths",
+            to_char(end_date, 'YYYY-MM-DD') AS "endDate"
+        FROM members
+    `;
+
     if (archived === 'true') {
         query += ' WHERE archived = true';
     } else {
         query += ' WHERE archived = false OR archived IS NULL';
     }
+
     query += ' ORDER BY id DESC';
 
     try {
         const result = await pool.query(query);
-        res.json(result.rows.map(r => ({
-            id: r.id,
-            name: r.name,
-            phone: r.phone,
-            startDate: r.start_date,
-            durationMonths: r.duration_months,
-            endDate: r.end_date
-        })));
+        res.json(result.rows);
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Database error' });
@@ -36,7 +157,7 @@ app.get('/api/members', async (req, res) => {
 });
 
 // ----- Check phone existence (including archived) -----
-app.get('/api/members/check-phone/:phone', async (req, res) => {
+app.get('/api/members/check-phone/:phone', requireAuth, async (req, res) => {
     const { phone } = req.params;
     try {
         const result = await pool.query(
@@ -61,7 +182,7 @@ app.get('/api/members/check-phone/:phone', async (req, res) => {
 });
 
 // ----- Get membership history for a member -----
-app.get('/api/members/:id/history', async (req, res) => {
+app.get('/api/members/:id/history', requireAuth, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query(
@@ -85,7 +206,7 @@ app.get('/api/members/:id/history', async (req, res) => {
 });
 
 // ----- Add new member (with history) -----
-app.post('/api/members', async (req, res) => {
+app.post('/api/members', requireAuth, async (req, res) => {
     const { name, phone, startDate, durationMonths } = req.body;
     if (!name || !startDate || !durationMonths) {
         return res.status(400).json({ error: 'Missing required fields' });
@@ -129,7 +250,7 @@ app.post('/api/members', async (req, res) => {
 });
 
 // ----- Renew membership (updates member + adds history) -----
-app.put('/api/members/:id', async (req, res) => {
+app.put('/api/members/:id', requireAuth, async (req, res) => {
     const { id } = req.params;
     const { startDate, durationMonths } = req.body;
     if (!startDate || !durationMonths) {
@@ -178,7 +299,7 @@ app.put('/api/members/:id', async (req, res) => {
 });
 
 // ----- Soft delete (archive) -----
-app.delete('/api/members/:id', async (req, res) => {
+app.delete('/api/members/:id', requireAuth, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query(
@@ -196,7 +317,7 @@ app.delete('/api/members/:id', async (req, res) => {
 });
 
 // ----- Restore archived member -----
-app.put('/api/members/:id/restore', async (req, res) => {
+app.put('/api/members/:id/restore', requireAuth, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query(
@@ -214,7 +335,7 @@ app.put('/api/members/:id/restore', async (req, res) => {
 });
 
 // ----- Delete all (hard delete) -----
-app.delete('/api/members', async (req, res) => {
+app.delete('/api/members', requireAuth, async (req, res) => {
     try {
         await pool.query('DELETE FROM members');
         res.json({ message: 'All members cleared' });
@@ -265,3 +386,4 @@ createTables();
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+

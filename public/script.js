@@ -69,34 +69,22 @@ document.body.prepend(hamburger);
 // ============================================================
 //  LOGOUT
 // ============================================================
-document.getElementById('logoutBtn').addEventListener('click', function() {
-    sessionStorage.removeItem('loggedIn');
+document.getElementById('logoutBtn').addEventListener('click', async function() {
+    try {
+        await fetch('/api/logout', {
+            method: 'POST'
+        });
+    } catch (err) {
+        console.error('Logout error:', err);
+    }
+
     window.location.href = '/login.html';
 });
 
 // ============================================================
-//  AUTH CHECK
-// ============================================================
-(function checkAuth() {
-    const loggedIn = sessionStorage.getItem('loggedIn');
-    if (!loggedIn || loggedIn !== 'true') {
-        window.location.href = '/login.html';
-    }
-})();
-
-if (window.location.pathname === '/login.html' && sessionStorage.getItem('loggedIn') === 'true') {
-    window.location.href = '/';
-}
-
-// ============================================================
 //  API CONFIG
 // ============================================================
-const API_BASE = (function() {
-    if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return 'http://127.0.0.1:5000/api';
-    }
-    return '/api';
-})();
+const API_BASE = '/api';
 
 // ============================================================
 //  DATA LAYER
@@ -382,7 +370,13 @@ function closeMemberDetails() {
 //  HELPERS
 // ============================================================
 function todayStr() {
-    return new Date().toISOString().split('T')[0];
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
 }
 
 function setDefaultStartDate() {
@@ -520,7 +514,10 @@ function renderDashboardLists() {
 
     const expired = members.filter(m => getStatus(m.endDate) === 'expired');
     const expiringSoon = members.filter(m => getStatus(m.endDate) === 'expiring-soon');
-    const newToday = members.filter(m => m.startDate === today);
+   const newToday = members.filter(m => {
+    const startDate = String(m.startDate || '').slice(0, 10);
+    return startDate === today;
+});
 
     // Expired – show Renew button
     renderList('expiredList', expired, 'No expired members', function(m) {
