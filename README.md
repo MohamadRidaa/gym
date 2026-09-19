@@ -65,3 +65,20 @@ The live application requires administrator authentication. Login credentials ar
 - Persistent session storage
 - Additional input validation
 - Automated tests
+
+## Screenshots
+
+### Login
+![Login page](screenshots/login.png)
+
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
+
+### Add Member
+![Add member form](screenshots/add-member.png)
+
+### Members
+![Member management](screenshots/members.png)
+
+### Archived Members
+![Archived member management](screenshots/archived.png)
