@@ -1,202 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔐 Gym Manager Login</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            /* Background image with dark overlay for readability */
-            background: 
-                linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-                url('background-login.jpg') center/cover no-repeat;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .login-container {
-            background: white;
-            border-radius: 16px;
-            padding: 48px 40px;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        /* ===== CIRCULAR LOGO ===== */
-        .logo-container {
-            text-align: center;
-            margin-bottom: 16px;
-        }
-
-        .logo-container img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #6c5ce7;
-            box-shadow: 0 4px 20px rgba(108, 92, 231, 0.3);
-        }
-
-        .login-container h1 {
-            text-align: center;
-            font-size: 2rem;
-            margin-bottom: 8px;
-            color: #2d3436;
-        }
-
-        .login-container .subtitle {
-            text-align: center;
-            color: #636e72;
-            margin-bottom: 32px;
-            font-size: 0.95rem;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #2d3436;
-            margin-bottom: 6px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #dfe6e9;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #6c5ce7;
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 14px;
-            background: #6c5ce7;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.05rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s, transform 0.15s;
-        }
-
-        .btn-login:hover {
-            background: #5a4bd1;
-        }
-
-        .btn-login:active {
-            transform: scale(0.97);
-        }
-
-        .error-message {
-            background: #ffeaa7;
-            color: #6c4a00;
-            padding: 10px 14px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            display: none;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 0.8rem;
-            color: #b2bec3;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in | Gym One</title>
+  <style>
+    :root { --ink:#17273e; --muted:#63748a; --accent:#365a9d; --border:#dce4ed; }
+    * { box-sizing:border-box; }
+    body {
+      margin:0; min-height:100vh; display:grid; place-items:center; padding:24px;
+      font: 15px/1.45 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color:var(--ink); background:#f5f7fb;
+      -webkit-font-smoothing:antialiased;
+    }
+    .login-container {
+      width:min(100%,430px); background:#fff; padding:40px;
+      border:1px solid #e3e9f1; border-radius:17px;
+      box-shadow:0 14px 56px rgba(22,40,65,.07);
+    }
+    .logo-container { margin-bottom:26px; }
+    .logo-container img { width:56px; height:56px; border-radius:12px; object-fit:cover; }
+    h1 { font-size:1.7rem; letter-spacing:-.04em; margin:0 0 5px; font-weight:720; }
+    .subtitle { color:var(--muted); margin:0 0 30px; font-size:.94rem; }
+    .form-group { margin-bottom:19px; }
+    label { display:block; font-size:.83rem; font-weight:650; margin-bottom:8px; }
+    input {
+      width:100%; padding:13px 14px; border:1px solid var(--border);
+      border-radius:9px; background:#fff; font:inherit; color:var(--ink);
+      outline:none; transition:border-color .15s, box-shadow .15s;
+    }
+    input:focus { border-color:#7795c9; box-shadow:0 0 0 3px rgba(54,90,157,.12); }
+    input::placeholder { color:#9aa8b8; }
+    .btn-login {
+      margin-top:6px; padding:13px 16px; width:100%; border:0; border-radius:9px;
+      color:white; background:var(--accent); font:inherit; font-weight:650;
+      cursor:pointer; transition:background .15s;
+    }
+    .btn-login:hover { background:#284578; }
+    .btn-login:disabled { opacity:.7; cursor:wait; }
+    .error-message {
+      display:none; padding:11px 13px; border-radius:8px; margin-bottom:18px;
+      background:#fdf0f1; border:1px solid #f7d7dc; color:#9d3b49;
+      font-size:.85rem;
+    }
+    .error-message.show { display:block; }
+    .footer { margin-top:28px; color:#8492a5; text-align:center; font-size:.78rem; }
+    @media (max-width:480px) { .login-container { padding:29px 24px; } }
+  </style>
 </head>
 <body>
-
-    <div class="login-container">
-        <!-- ===== CIRCULAR LOGO ===== -->
-        <div class="logo-container">
-            <img src="logo-login.jpg" alt="Gym Logo" />
-        </div>
-
-        <h1>Gym Manager</h1>
-        <p class="subtitle">Sign in to continue</p>
-
-        <div class="error-message" id="errorMessage">
-            ❌ Incorrect username or password
-        </div>
-
-        <form id="loginForm" autocomplete="off">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" placeholder="Enter username" required autofocus>
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Enter password" required>
-            </div>
-
-            <button type="submit" class="btn-login">🔓 Sign In</button>
-        </form>
-
-        <div class="footer">
-            Gym Manager v1.0 • Private Access Only
-        </div>
+  <main class="login-container">
+    <div class="logo-container">
+      <img src="logo-login.jpg" alt="Gym One logo" />
     </div>
-
-    <script>
-       
-       document.getElementById('loginForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value;
-    const errorEl = document.getElementById('errorMessage');
-
-    try {
+    <h1>Welcome back</h1>
+    <p class="subtitle">Sign in to Gym One to manage memberships.</p>
+    <div class="error-message" id="errorMessage" role="alert" aria-live="polite"></div>
+    <form id="loginForm" autocomplete="on">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" placeholder="Enter your username" required autofocus />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" placeholder="Enter your password" required />
+      </div>
+      <button type="submit" class="btn-login">Sign in</button>
+    </form>
+    <p class="footer">Gym One · Private administrator access</p>
+  </main>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const passwordField = document.getElementById('password');
+      const errorEl = document.getElementById('errorMessage');
+      const submitButton = this.querySelector('button[type="submit"]');
+      errorEl.classList.remove('show');
+      submitButton.disabled = true;
+      try {
         const response = await fetch('/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password: passwordField.value })
         });
-
         if (response.ok) {
-            window.location.href = '/';
-        } else {
-            errorEl.classList.add('show');
-            errorEl.textContent = '❌ Incorrect username or password';
-            document.getElementById('password').value = '';
+          window.location.href = '/';
+          return;
         }
-    } catch (error) {
-        errorEl.classList.add('show');
-        errorEl.textContent = 'Unable to login';
-    }
-});
-    </script>
-
+        errorEl.textContent = 'Incorrect username or password.';
+      } catch (err) {
+        errorEl.textContent = 'Unable to sign in. Check your connection and try again.';
+      }
+      errorEl.classList.add('show');
+      passwordField.value = '';
+      submitButton.disabled = false;
+    });
+  </script>
 </body>
 </html>
