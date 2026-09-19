@@ -311,11 +311,7 @@ async function openMemberDetails(id) {
         showToast('❌ Member not found.', 'error');
         return;
     }
-console.log('Member object:', member);
-console.log('Name:', member.name);
-console.log('Phone:', member.phone);
-console.log('Start:', member.startDate);
-console.log('End:', member.endDate);
+
     detailsMemberId = memberId;
     detailsIsArchived = isArchived;
 
