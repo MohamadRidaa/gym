@@ -195,6 +195,38 @@ async function restoreMember(id) {
     }
 }
 
+async function permanentlyDeleteMember(id) {
+    const member = archivedMembers.find(m => m.id === Number(id));
+
+    if (!member) {
+        showToast('Archived member not found', 'error');
+        return;
+    }
+
+    const confirmation = prompt(
+        `Permanently delete ${member.name} and their membership history?\n\n` +
+        `This cannot be undone.\n\nType DELETE to confirm:`
+    );
+
+    if (confirmation !== 'DELETE') return;
+
+    try {
+        const response = await fetch(
+            `${API_BASE}/members/${id}/permanent`,
+            { method: 'DELETE' }
+        );
+
+        if (!response.ok) {
+            throw new Error('Could not permanently delete member');
+        }
+
+        await loadMembers();
+        showToast('Member permanently deleted', 'success');
+
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
 async function clearAllData() {
     if (!confirm('Delete ALL members (hard delete)?')) return;
     try {
@@ -604,6 +636,7 @@ function renderArchivedPage() {
                 <td style="text-align:center;">
                     <div class="action-cell" style="justify-content:center;">
                         <button class="btn btn-success btn-sm restore-btn" data-id="${m.id}">Restore</button>
+                        <button type="button"class="btn btn-danger btn-sm permanent-delete-btn"data-id="${m.id}"> Delete permanently</button>
                     </div>
                 </td>
             </tr>
@@ -716,6 +749,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const id = Number(target.dataset.id);
                 if (id) restoreMember(id);
             }
+            // permanent delete
+            else if (target.classList.contains('permanent-delete-btn')) {
+                const id = Number(target.dataset.id);
+                if (id) permanentlyDeleteMember(id);
+}
             // Renew button
             else if (target.classList.contains('renew-btn')) {
                 const id = Number(target.dataset.id);
