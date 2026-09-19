@@ -334,6 +334,36 @@ app.put('/api/members/:id/restore', requireAuth, async (req, res) => {
     }
 });
 
+// ----- Permanently delete an archived member -----
+app.delete('/api/members/:id/permanent', requireAuth, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const result = await pool.query(
+            `DELETE FROM members
+             WHERE id = $1 AND archived = true
+             RETURNING id`,
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                message: 'Archived member not found'
+            });
+        }
+
+        res.json({
+            message: 'Member permanently deleted'
+        });
+
+    } catch (err) {
+        console.error('Permanent delete error:', err);
+
+        res.status(500).json({
+            message: 'Could not delete member'
+        });
+    }
+});
 // ----- Delete all (hard delete) -----
 app.delete('/api/members', requireAuth, async (req, res) => {
     try {
