@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🏋️ Gym Member Manager</title>
+    <title>Gym One | Member Management</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -13,35 +13,35 @@
         <!-- ===== SIDEBAR ===== -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                    <img src="logo-login.jpg" alt="Gym One" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" />
-                    <h2 style="font-size: 1.3rem; margin: 0;">GYM ONE</h2>
+                <div class="brand-row">
+                    <img class="brand-logo" src="logo-login.jpg" alt="Gym One logo" />
+                    <h2>GYM ONE</h2>
                 </div>
-                <p class="sidebar-subtitle">Member Manager</p>
+                <p class="sidebar-subtitle">Membership administration</p>
             </div>
 
             <nav class="sidebar-nav">
                 <button class="sidebar-btn active" data-page="dashboard">
-                    <span class="icon">📊</span> Dashboard
+                    Dashboard
                 </button>
                 <button class="sidebar-btn" data-page="add-member">
-                    <span class="icon">➕</span> Add Member
+                    Add Member
                 </button>
                 <button class="sidebar-btn" data-page="members">
-                    <span class="icon">👥</span> Members
+                    Members
                 </button>
                 <button class="sidebar-btn" data-page="archived">
-                    <span class="icon">📁</span> Archived
+                    Archived
                 </button>
                
             </nav>
 
             <div class="sidebar-footer">
                 <button class="sidebar-btn logout-btn" id="logoutBtn">
-                    <span class="icon">🚪</span> Logout
+                    Logout
                 </button>
                 <div class="sidebar-user">
-                    <span>👤</span> gymowner
+                    <span class="user-avatar" aria-hidden="true">A</span> Administrator
                 </div>
             </div>
         </aside>
@@ -52,23 +52,20 @@
             <!-- ===== PAGE: DASHBOARD ===== -->
             <section class="page" id="page-dashboard">
                 <header class="app-header">
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <span style="font-weight: 700; font-size: 1.6rem; background: #4a90d9; color: #000000; padding: 6px 24px; border-radius: 12px; letter-spacing: 1px;">GYM ONE</span>
-                        <span style="font-weight: 400; font-size: 1.2rem; color: #1a1a2e;">Dashboard</span>
-                    </div>
+                    <div class="page-heading"><p class="eyebrow">Overview</p><h1>Dashboard</h1></div>
                     <div class="header-stats">
-                        <div class="stat-badge active" id="activeBadge">💪 Active <span class="num" id="activeCount">0</span></div>
-                        <div class="stat-badge expired" id="expiredBadge">⏰ Expired <span class="num" id="expiredCount">0</span></div>
-                        <div class="stat-badge" id="totalBadge">🏋️ Total <span class="num" id="totalCount">0</span></div>
+                        <div class="stat-badge active" id="activeBadge">Active <span class="num" id="activeCount">0</span></div>
+                        <div class="stat-badge expired" id="expiredBadge">Expired <span class="num" id="expiredCount">0</span></div>
+                        <div class="stat-badge" id="totalBadge">Total <span class="num" id="totalCount">0</span></div>
                     </div>
                 </header>
 
                 <!-- ===== THREE LISTS ===== -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div class="dashboard-grid">
 
                     <!-- Expired Members -->
                     <div class="card">
-                        <div class="card-title">⏰ Expired Members</div>
+                        <div class="card-title">Expired Members</div>
                         <div id="expiredList" style="max-height: 300px; overflow-y: auto;">
                             <p class="text-muted">No expired members</p>
                         </div>
@@ -76,7 +73,7 @@
 
                     <!-- Expiring Soon -->
                     <div class="card">
-                        <div class="card-title">⚠️ Expiring Soon (≤ 7 days)</div>
+                        <div class="card-title">Expiring soon (7 days)</div>
                         <div id="expiringSoonList" style="max-height: 300px; overflow-y: auto;">
                             <p class="text-muted">No members expiring soon</p>
                         </div>
@@ -84,7 +81,7 @@
 
                     <!-- New & Renewed Today -->
                     <div class="card">
-                        <div class="card-title">🆕 New & Renewed Today</div>
+                        <div class="card-title">New & renewed today</div>
                         <div id="newTodayList" style="max-height: 300px; overflow-y: auto;">
                             <p class="text-muted">No members added or renewed today</p>
                         </div>
@@ -96,10 +93,10 @@
             <!-- ===== PAGE: ADD MEMBER ===== -->
             <section class="page" id="page-add-member" style="display:none;">
                 <header class="app-header">
-                    <h1 style="color: #1a1a2e;">➕ Add New Member</h1>
+                    <h1>Add member</h1>
                 </header>
                 <div class="card">
-                    <div class="card-title">➕ Add New Member</div>
+                    <div class="card-title">Add member</div>
                     <form id="memberForm" autocomplete="off">
                         <div class="form-grid">
                             <div class="form-group">
@@ -124,7 +121,7 @@
                                 </select>
                             </div>
                             <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">➕ Add Member</button>
+                                <button type="submit" class="btn btn-primary">Add member</button>
                                 <button type="reset" class="btn btn-outline">Clear</button>
                             </div>
                         </div>
@@ -135,21 +132,20 @@
             <!-- ===== PAGE: MEMBERS ===== -->
             <section class="page" id="page-members" style="display:none;">
                 <header class="app-header">
-                    <h1 style="color: #1a1a2e;">👥 All Members</h1>
+                    <h1>All members</h1>
                     <div class="header-stats">
-                        <div class="stat-badge active">✅ Active <span class="num" id="membersActiveCount">0</span></div>
-                        <div class="stat-badge expired">⏰ Expired <span class="num" id="membersExpiredCount">0</span></div>
-                        <div class="stat-badge">👥 Total <span class="num" id="membersTotalCount">0</span></div>
+                        <div class="stat-badge active">Active <span class="num" id="membersActiveCount">0</span></div>
+                        <div class="stat-badge expired">Expired <span class="num" id="membersExpiredCount">0</span></div>
+                        <div class="stat-badge">Total <span class="num" id="membersTotalCount">0</span></div>
                     </div>
                 </header>
 
                 <div class="card">
-                    <div class="card-title">📋 All Members</div>
+                    <div class="card-title">Member directory</div>
                     <div class="toolbar">
                         <div class="toolbar-left">
                             <div class="search-box">
-                                <span class="icon">🔍</span>
-                                <input type="text" id="membersSearchInput" placeholder="Search by name or phone..." />
+                                                                <input type="text" id="membersSearchInput" placeholder="Search by name or phone..." />
                             </div>
                             <select class="filter-select" id="membersFilterSelect">
                                 <option value="all">All</option>
@@ -176,7 +172,7 @@
                     </div>
 
                     <div id="membersEmptyState" class="empty-state">
-                        <span class="big-icon">🏋️</span>
+                        
                         <h3>No members yet</h3>
                         <p class="text-muted">Add your first member using the form above!</p>
                     </div>
@@ -186,13 +182,13 @@
             <!-- ===== PAGE: ARCHIVED ===== -->
             <section class="page" id="page-archived" style="display:none;">
                 <header class="app-header">
-                    <h1 style="color: #1a1a2e;">📁 Archived Members</h1>
+                    <h1>Archived members</h1>
                     <div class="header-stats">
-                        <div class="stat-badge">📦 Total <span class="num" id="archivedCount">0</span></div>
+                        <div class="stat-badge">Total <span class="num" id="archivedCount">0</span></div>
                     </div>
                 </header>
                 <div class="card">
-                    <div class="card-title">📋 Archived Members</div>
+                    <div class="card-title">Archived members</div>
                     <div class="table-wrapper">
                         <table>
                             <thead>
@@ -208,9 +204,9 @@
                         </table>
                     </div>
                     <div id="archivedEmptyState" class="empty-state">
-                        <span class="big-icon">📁</span>
+                        
                         <h3>No archived members</h3>
-                        <p class="text-muted">Deleted members will appear here.</p>
+                        <p class="text-muted">Archived members will appear here.</p>
                     </div>
                 </div>
             </section>
@@ -243,7 +239,7 @@
     <!-- MEMBER DETAILS MODAL (with history) -->
     <div class="modal-overlay" id="memberDetailsModal" hidden>
         <div class="modal-card" style="max-width: 500px; max-height: 80vh; overflow-y: auto;">
-            <h3 id="memberDetailsTitle">👤 Member Details</h3>
+            <h3 id="memberDetailsTitle">Member details</h3>
             <div id="memberDetailsContent" style="padding: 10px 0;">
                 <p><strong>Name:</strong> <span id="detailName"></span></p>
                 <p><strong>Phone:</strong> <span id="detailPhone"></span></p>
@@ -253,14 +249,14 @@
                 
                 <hr style="margin: 16px 0; border: none; border-top: 1px solid #e9ecef;">
                 
-                <h4 style="margin: 0 0 10px 0;">📋 Membership History</h4>
+                <h4 style="margin: 0 0 10px 0;">Membership history</h4>
                 <div id="memberHistoryContainer" style="max-height: 200px; overflow-y: auto; font-size: 0.9rem;">
                     <p class="text-muted">Loading history...</p>
                 </div>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-outline" id="closeMemberDetails">Close</button>
-                <button type="button" class="btn btn-primary" id="restoreFromDetails" style="display:none;">🔄 Restore Member</button>
+                <button type="button" class="btn btn-primary" id="restoreFromDetails" style="display:none;">Restore member</button>
             </div>
         </div>
     </div>

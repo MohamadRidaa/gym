@@ -62,7 +62,8 @@ document.body.addEventListener('click', function(e) {
 const hamburger = document.createElement('button');
 hamburger.className = 'sidebar-toggle';
 hamburger.id = 'hamburgerBtn';
-hamburger.innerHTML = '☰';
+hamburger.innerHTML = '<span class="menu-lines" aria-hidden="true"></span>';
+hamburger.setAttribute('aria-label', 'Toggle navigation');
 hamburger.onclick = toggleSidebar;
 document.body.prepend(hamburger);
 
@@ -131,16 +132,16 @@ async function checkPhone(phone) {
 
 async function addMember(name, phone, startDate, durationMonths) {
     if (!phone || phone.trim() === '') {
-        showToast('⚠️ Phone number is required.', 'error');
+        showToast('Phone number is required.', 'error');
         return;
     }
 
     const check = await checkPhone(phone);
     if (check && check.exists) {
         if (check.archived) {
-            if (confirm(`📁 Member "${check.name}" already exists but is archived. Do you want to restore them?`)) {
+            if (confirm(`Member "${check.name}" already exists but is archived. Do you want to restore them?`)) {
                 await restoreMember(check.id);
-                showToast(`✅ ${check.name} restored successfully!`, 'success');
+                showToast(`${check.name} restored successfully!`, 'success');
                 loadMembers();
                 return;
             } else {
@@ -148,7 +149,7 @@ async function addMember(name, phone, startDate, durationMonths) {
                 return;
             }
         } else {
-            showToast(`❌ Member with phone ${phone} already exists (${check.name}).`, 'error');
+            showToast(`Member with phone ${phone} already exists (${check.name}).`, 'error');
             return;
         }
     }
@@ -163,7 +164,7 @@ async function addMember(name, phone, startDate, durationMonths) {
         const newMember = await res.json();
         members.push(newMember);
         loadMembers();
-        showToast(`✅ ${newMember.name} added!`, 'success');
+        showToast(`${newMember.name} added!`, 'success');
     } catch (err) {
         showToast('Error adding member: ' + err.message, 'error');
     }
@@ -186,7 +187,7 @@ async function restoreMember(id) {
         const res = await fetch(`${API_BASE}/members/${id}/restore`, { method: 'PUT' });
         if (!res.ok) throw new Error('Restore failed');
         const data = await res.json();
-        showToast(`✅ ${data.member.name} restored`, 'success');
+        showToast(`${data.member.name} restored`, 'success');
         loadMembers();
         closeMemberDetails();
     } catch (err) {
@@ -195,7 +196,7 @@ async function restoreMember(id) {
 }
 
 async function clearAllData() {
-    if (!confirm('⚠️ Delete ALL members (hard delete)?')) return;
+    if (!confirm('Delete ALL members (hard delete)?')) return;
     try {
         const res = await fetch(`${API_BASE}/members`, { method: 'DELETE' });
         if (!res.ok) throw new Error('Clear failed');
@@ -217,7 +218,7 @@ function openRenewModal(id) {
     const memberId = Number(id);
     const member = members.find(m => m.id === memberId);
     if (!member) {
-        showToast('❌ Member not found.', 'error');
+        showToast('Member not found.', 'error');
         return;
     }
     activeRenewMemberId = memberId;
@@ -253,7 +254,7 @@ async function confirmRenewal() {
         if (idx !== -1) members[idx] = updated;
         loadMembers();
         closeRenewModal();
-        showToast(`🔄 ${updated.name} renewed`, 'success');
+        showToast(`${updated.name} renewed`, 'success');
     } catch (err) {
         showToast('Error renewing: ' + err.message, 'error');
     }
@@ -308,7 +309,7 @@ async function openMemberDetails(id) {
         isArchived = true;
     }
     if (!member) {
-        showToast('❌ Member not found.', 'error');
+        showToast('Member not found.', 'error');
         return;
     }
 
@@ -316,28 +317,32 @@ async function openMemberDetails(id) {
     detailsIsArchived = isArchived;
 
     document.getElementById('detailName').textContent = member.name;
-   const phoneEl = document.getElementById('detailPhone');
-if (member.phone) {
-    // Clean the phone number: keep only digits and '+' (for international)
-    const cleanPhone = member.phone.replace(/[^0-9+]/g, '');
-    // Generate the renewal message and URL-encode it
-    const message = encodeURIComponent(getRenewalMessage(member));
-    // Build the SMS link
-    const waLink = `https://wa.me/${cleanPhone}?text=${message}`;
-phoneEl.innerHTML = `<a href="${waLink}" target="_blank" style="color:#4a90d9;text-decoration:underline;">${member.phone}</a>`;}
-  else {  phoneEl.textContent = '—';
-}  
+    const phoneEl = document.getElementById('detailPhone');
+    phoneEl.replaceChildren();
+    if (member.phone) {
+        const cleanPhone = member.phone.replace(/[^0-9+]/g, '');
+        const message = encodeURIComponent(getRenewalMessage(member));
+        const phoneLink = document.createElement('a');
+        phoneLink.href = `https://wa.me/${cleanPhone}?text=${message}`;
+        phoneLink.target = '_blank';
+        phoneLink.rel = 'noopener noreferrer';
+        phoneLink.textContent = member.phone;
+        phoneEl.appendChild(phoneLink);
+    } else {
+        phoneEl.textContent = '—';
+    }
+
     document.getElementById('detailStartDate').textContent = formatDate(member.startDate);
     document.getElementById('detailEndDate').textContent = formatDate(member.endDate);
 
     const status = getStatus(member.endDate);
     let statusHTML = '';
     if (status === 'active') {
-        statusHTML = '✅ <span style="color: #00b894;">Active</span>';
+        statusHTML = '<span class="status-text active-text">Active</span>';
     } else if (status === 'expiring-soon') {
-        statusHTML = '⚠️ <span style="color: #f39c12;">Expiring soon</span>';
+        statusHTML = '<span class="status-text warning-text">Expiring soon</span>';
     } else {
-        statusHTML = '❌ <span style="color: #ff6b6b;">Expired</span>';
+        statusHTML = '<span class="status-text danger-text">Expired</span>';
     }
     document.getElementById('detailStatus').innerHTML = `<strong>Status:</strong> ${statusHTML}`;
 
@@ -470,13 +475,13 @@ function renderMembersPage() {
         const days = daysBetween(todayStr(), m.endDate);
         let statusLabel, statusClass;
         if (status === 'active') {
-            statusLabel = '✅ Active';
+            statusLabel = 'Active';
             statusClass = 'active';
         } else if (status === 'expiring-soon') {
-            statusLabel = '⚠️ Expiring soon';
+            statusLabel = 'Expiring soon';
             statusClass = 'expiring-soon';
         } else {
-            statusLabel = '❌ Expired';
+            statusLabel = 'Expired';
             statusClass = 'expired';
         }
 
@@ -492,8 +497,8 @@ function renderMembersPage() {
                 <td><span class="days-remaining ${daysClass}">${formatDays(days)}</span></td>
                 <td style="text-align:center;">
                     <div class="action-cell" style="justify-content:center;">
-                        <button class="btn btn-success btn-sm renew-btn" data-id="${m.id}">🔄 Renew</button>
-                        <button class="btn btn-danger btn-sm archive-btn" data-id="${m.id}">📁 Archive</button>
+                        <button class="btn btn-success btn-sm renew-btn" data-id="${m.id}">Renew</button>
+                        <button class="btn btn-danger btn-sm archive-btn" data-id="${m.id}">Archive</button>
                     </div>
                 </td>
             </tr>
@@ -598,7 +603,7 @@ function renderArchivedPage() {
                 <td>${formatDate(m.endDate)}</td>
                 <td style="text-align:center;">
                     <div class="action-cell" style="justify-content:center;">
-                        <button class="btn btn-success btn-sm restore-btn" data-id="${m.id}">🔄 Restore</button>
+                        <button class="btn btn-success btn-sm restore-btn" data-id="${m.id}">Restore</button>
                     </div>
                 </td>
             </tr>
@@ -661,11 +666,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const duration = parseInt(document.getElementById('memberDuration').value, 10);
 
         if (!name) {
-            showToast('⚠️ Please enter a name.', 'error');
+            showToast('Please enter a name.', 'error');
             return;
         }
         if (!startDate) {
-            showToast('⚠️ Please select a start date.', 'error');
+            showToast('Please select a start date.', 'error');
             return;
         }
 
