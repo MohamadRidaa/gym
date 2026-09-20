@@ -82,3 +82,6 @@ The live application requires administrator authentication. Login credentials ar
 
 ### Archived Members
 ![Archived member management](screenshots/archived.png)
+
+### Mini Member Details
+![Member Details](screenshots/member-details.png)
